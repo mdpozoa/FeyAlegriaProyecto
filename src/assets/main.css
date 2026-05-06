@@ -1,0 +1,20 @@
+:root {
+  --primary-color: #1e3a8a; /* Azul oscuro corporativo */
+  --accent-color: #2563eb; /* Azul claro / hover */
+  --danger-color: #ea580c; /* Naranja/Rojo botones alerta */
+  --warning-color: #f97316; /* Naranja advertencia */
+  --bg-body: #f3f4f6; /* Fondo claro */
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--bg-body);
+  color: #111827;
+  -webkit-font-smoothing: antialiased;
+}
