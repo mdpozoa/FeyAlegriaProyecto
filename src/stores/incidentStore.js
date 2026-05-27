@@ -21,16 +21,12 @@ export const useIncidentStore = defineStore('incident', {
     async fetchIncidents() {
       this.isLoading = true
       try {
-        const stored = localStorage.getItem('incidents')
-        if (stored) {
-          this.incidents = JSON.parse(stored)
-        } else {
-          const data = await IncidentController.getIncidents()
-          this.incidents = data
-          localStorage.setItem('incidents', JSON.stringify(data))
-        }
+        // Consultar directamente al controlador (el cual gestiona la API o el fallback)
+        const data = await IncidentController.getIncidents()
+        this.incidents = data
+        localStorage.setItem('incidents', JSON.stringify(data))
         
-        // Sincronización en tiempo real entre pestañas
+        // Sincronización en tiempo real entre pestañas en caso de redundancia offline
         if (!window.__incidentSyncSetup) {
           window.__incidentSyncSetup = true
           window.addEventListener('storage', (e) => {
@@ -52,7 +48,7 @@ export const useIncidentStore = defineStore('incident', {
         const newIncident = await IncidentController.createIncident(incidentData)
         this.incidents.push(newIncident)
         
-        // Guardar y notificar a otras pestañas
+        // Sincronizar persistencia local
         localStorage.setItem('incidents', JSON.stringify(this.incidents))
       } catch (err) {
         this.error = err.message

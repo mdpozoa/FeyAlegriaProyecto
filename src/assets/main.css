@@ -1,9 +1,24 @@
 :root {
-  --primary-color: #1e3a8a; /* Azul oscuro corporativo */
-  --accent-color: #2563eb; /* Azul claro / hover */
-  --danger-color: #ea580c; /* Naranja/Rojo botones alerta */
-  --warning-color: #f97316; /* Naranja advertencia */
-  --bg-body: #f3f4f6; /* Fondo claro */
+  /* Fe y Alegría Red Palette & Design System */
+  --primary-color: #dc2626; /* Rojo Institucional Fe y Alegría */
+  --primary-hover: #b91c1c; /* Rojo Oscuro para hover */
+  --accent-color: #ef4444; /* Rojo Brillante */
+  --accent-light: #fee2e2; /* Fondo de alertas sutiles */
+  --dark-color: #0f172a; /* Slate 900 - Textos oscuros profundos */
+  --dark-light: #334155; /* Slate 700 - Textos secundarios */
+  --bg-body: #f8fafc; /* Slate 50 - Fondo general limpio */
+  --bg-card: #ffffff;
+  --danger-color: #dc2626;
+  --warning-color: #f97316;
+  --success-color: #10b981;
+  --border-color: #e2e8f0; /* Slate 200 */
+  
+  /* Glassmorphism & Depth Elements */
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(220, 38, 38, 0.08);
+  --glass-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.04), 0 4px 12px -2px rgba(15, 23, 42, 0.03);
+  --btn-shadow: 0 4px 12px rgba(220, 38, 38, 0.15);
+  --btn-shadow-hover: 0 6px 20px rgba(220, 38, 38, 0.25);
 }
 
 * {
@@ -15,6 +30,42 @@
 body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   background-color: var(--bg-body);
-  color: #111827;
+  color: var(--dark-color);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
+}
+
+/* Scrollbar personalizado moderno */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Animaciones globales */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
 }
