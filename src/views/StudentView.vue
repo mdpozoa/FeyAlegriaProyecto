@@ -67,6 +67,50 @@
       <IncidentMap :allow-selection="seleccionando" @location-selected="handleLocationSelected" />
     </div>
 
+    <!-- Tabla de Mis Reportes (Solo los creados por este estudiante para ver su estado) -->
+    <div class="my-reports-section">
+      <div class="my-reports-header">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary-color)"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+        <h3>Mis Reportes de Seguridad Enviados</h3>
+      </div>
+      
+      <div class="my-reports-table-wrapper">
+        <table class="my-reports-table">
+          <thead>
+            <tr>
+              <th>TIPO</th>
+              <th>SEVERIDAD</th>
+              <th>JORNADA</th>
+              <th>HORA APROX.</th>
+              <th>UBICACIÓN</th>
+              <th>ESTADO ACTUAL</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="report in studentReports" :key="report.id" class="table-row">
+              <td class="font-bold-cell">{{ report.tipo }}</td>
+              <td>
+                <span :class="['badge-severity', report.severidad.toLowerCase()]">
+                  {{ report.severidad === 'HIGH' ? 'CRÍTICO' : report.severidad === 'MEDIUM' ? 'PREVENTIVO' : 'BAJO' }}
+                </span>
+              </td>
+              <td>{{ report.jornada }}</td>
+              <td>{{ report.horaAprox }}</td>
+              <td class="coordinates-cell">{{ report.latitud.toFixed(4) }}, {{ report.longitud.toFixed(4) }}</td>
+              <td>
+                <span :class="['status-badge-inline', (report.estado || 'Reportado').toLowerCase()]">
+                  {{ report.estado || 'Reportado' }}
+                </span>
+              </td>
+            </tr>
+            <tr v-if="studentReports.length === 0">
+              <td colspan="6" class="empty-reports-state">Aún no has registrado ningún reporte de seguridad.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
     <!-- Modal de Reporte Premium -->
     <div class="modal-overlay" v-if="showModal" @click.self="cancelarReporte">
       <div class="modal-content glass-card">
@@ -185,6 +229,10 @@ const activeNotifications = computed(() => {
            i.estado === 'Revisado' && 
            !dismissedNotifs.value.includes(i.id)
   })
+})
+
+const studentReports = computed(() => {
+  return store.incidents.filter(i => i.reporteroId === authStore.user?.id)
 })
 
 const dismissNotification = (id) => {
@@ -860,5 +908,131 @@ const submitReport = async () => {
   justify-content: center;
   font-size: 0.75rem;
   font-weight: 800;
+}
+
+/* ESTILOS DE LA TABLA DE MIS REPORTES */
+.my-reports-section {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 16px;
+  box-shadow: var(--glass-shadow);
+  border: 1px solid var(--border-color);
+  animation: fadeIn 0.4s ease-out;
+}
+
+.my-reports-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.my-reports-header h3 {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--dark-color);
+  margin: 0;
+}
+
+.my-reports-table-wrapper {
+  overflow-x: auto;
+}
+
+.my-reports-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.my-reports-table th {
+  background-color: #f8fafc;
+  padding: 0.85rem 1rem;
+  font-size: 0.725rem;
+  font-weight: 700;
+  color: var(--dark-light);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.my-reports-table td {
+  padding: 1rem;
+  font-size: 0.85rem;
+  color: var(--dark-light);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.my-reports-table .table-row:hover {
+  background-color: #f8fafc;
+}
+
+.my-reports-table tr:last-child td {
+  border-bottom: none;
+}
+
+.font-bold-cell {
+  font-weight: 700;
+  color: var(--dark-color);
+}
+
+.coordinates-cell {
+  font-family: monospace;
+  font-size: 0.775rem;
+  color: #64748b;
+}
+
+.status-badge-inline {
+  font-size: 0.675rem;
+  font-weight: 800;
+  padding: 0.2rem 0.5rem;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  display: inline-block;
+  letter-spacing: 0.03em;
+  width: fit-content;
+}
+
+.status-badge-inline.reportado {
+  background-color: #e2e8f0;
+  color: var(--dark-light);
+  border: 1px solid var(--border-color);
+}
+
+.status-badge-inline.revisado {
+  background-color: #d1fae5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+.badge-severity {
+  font-size: 0.675rem;
+  font-weight: 800;
+  padding: 0.2rem 0.5rem;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  display: inline-block;
+  letter-spacing: 0.03em;
+}
+
+.badge-severity.high {
+  background-color: var(--accent-light);
+  color: var(--primary-color);
+}
+
+.badge-severity.medium {
+  background-color: #ffedd5;
+  color: #c2410c;
+}
+
+.badge-severity.low {
+  background-color: #e0f2fe;
+  color: #0369a1;
+}
+
+.empty-reports-state {
+  text-align: center;
+  padding: 2.5rem !important;
+  color: #94a3b8;
+  font-style: italic;
 }
 </style>
