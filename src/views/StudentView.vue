@@ -14,17 +14,17 @@
       </div>
       
       <div class="banner-actions">
-        <!-- Notificaciones de reportes revisados -->
-        <div class="notification-wrapper" v-if="activeNotifications.length > 0">
-          <button class="btn-bell" @click="showNotificationsMenu = !showNotificationsMenu">
+        <!-- Notificaciones de reportes revisados (Siempre Visible para guiar al usuario) -->
+        <div class="notification-wrapper">
+          <button class="btn-bell" @click="showNotificationsMenu = !showNotificationsMenu" title="Notificaciones de Reportes">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
-            <span class="bell-badge">{{ activeNotifications.length }}</span>
+            <span class="bell-badge" v-if="activeNotifications.length > 0">{{ activeNotifications.length }}</span>
           </button>
           
           <div class="notification-dropdown glass-card" v-if="showNotificationsMenu">
             <div class="dropdown-header">
               <h4>Reportes Revisados</h4>
-              <button @click="dismissAll" class="btn-clear-all">Limpiar</button>
+              <button v-if="activeNotifications.length > 0" @click="dismissAll" class="btn-clear-all">Limpiar</button>
             </div>
             <div class="dropdown-body">
               <div 
@@ -38,6 +38,11 @@
                   <span class="notif-time">{{ notif.horaAprox }} - {{ notif.jornada }}</span>
                 </div>
                 <button @click="dismissNotification(notif.id)" class="btn-dismiss-item">&times;</button>
+              </div>
+              
+              <!-- Estado vacío de notificaciones -->
+              <div v-if="activeNotifications.length === 0" class="empty-notif-state">
+                <p>No tienes notificaciones de reportes revisados por el momento.</p>
               </div>
             </div>
           </div>
@@ -142,6 +147,18 @@
         <p>Tu reporte de <strong>{{ latestReviewedNotif.tipo }}</strong> ha sido revisado y atendido por las autoridades.</p>
       </div>
     </transition>
+
+    <!-- Toast Alert de Reporte Enviado con Éxito -->
+    <transition name="fade-slide">
+      <div class="toast-alert-success glass-card" v-if="showSubmitSuccess">
+        <div class="toast-header-popup">
+          <span class="toast-icon-success">✓</span>
+          <strong>Reporte Enviado y Registrado</strong>
+          <button @click="showSubmitSuccess = false" class="toast-close">&times;</button>
+        </div>
+        <p>Tu reporte de incidente ha sido registrado con éxito. Las autoridades escolares lo revisarán a la brevedad posible.</p>
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -185,6 +202,7 @@ const dismissAll = () => {
 
 // Alertas emergentes (Toast Alert) en tiempo real
 const showToast = ref(false)
+const showSubmitSuccess = ref(false)
 const latestReviewedNotif = ref(null)
 
 watch(activeNotifications, (newVal, oldVal) => {
@@ -271,6 +289,12 @@ const submitReport = async () => {
   seleccionando.value = false
   selectedLocation.value = null
   formData.value.descripcion = ''
+
+  // Disparar toast de reporte enviado y registrado con éxito
+  showSubmitSuccess.value = true
+  setTimeout(() => {
+    showSubmitSuccess.value = false
+  }, 5000)
 }
 </script>
 
@@ -799,5 +823,42 @@ const submitReport = async () => {
   color: var(--dark-light);
   line-height: 1.4;
   margin: 0;
+}
+
+/* ESTILOS DE ÉXITO Y NOTIFICACIÓN VACÍA */
+.empty-notif-state {
+  padding: 1.5rem 1rem;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 0.775rem;
+}
+
+.toast-alert-success {
+  position: fixed;
+  bottom: 2rem;
+  left: 2rem;
+  width: 320px;
+  background-color: white;
+  border-left: 4px solid var(--success-color);
+  padding: 1.25rem;
+  box-shadow: var(--glass-shadow);
+  z-index: 3000;
+  border-radius: 8px 16px 16px 8px;
+  border-top: 1px solid var(--border-color);
+  border-right: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.toast-icon-success {
+  background-color: #e6fbf1;
+  color: var(--success-color);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 800;
 }
 </style>

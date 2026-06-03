@@ -168,16 +168,21 @@ const exportData = () => {
     ...rows.map(row => row.map(val => `"${String(val).replace(/"/g, '""')}"`).join(','))
   ].join('\n')
 
-  // Crear y disparar la descarga en el navegador
+  // Crear y disparar la descarga en el navegador de manera segura (evitando bloqueos de DOM)
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
   const url = URL.createObjectURL(blob)
   const link = document.createElement('a')
-  link.setAttribute('href', url)
+  link.href = url
   link.setAttribute('download', `reporte_policia_nacional_${new Date().toISOString().slice(0, 10)}.csv`)
-  link.style.visibility = 'hidden'
+  link.style.display = 'none'
   document.body.appendChild(link)
   link.click()
-  document.body.removeChild(link)
+  
+  // Liberar el elemento del DOM y revocar la URL después de que el navegador procese el clic
+  setTimeout(() => {
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+  }, 150)
 }
 </script>
 
