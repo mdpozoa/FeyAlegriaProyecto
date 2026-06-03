@@ -798,9 +798,24 @@ const submitReport = async () => {
   font-weight: 600;
 }
 
+.empty-notif-state {
+  padding: 1.5rem 1rem;
+  text-align: center;
+  color: #64748b;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
 .btn-dismiss-item {
   background: none;
   border: none;
+  color: #cbd5e1;
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0 0.5rem;
+  transition: color 0.2s;
+  height: fit-content;
+}
   font-size: 1.15rem;
   font-weight: 500;
   color: #94a3b8;
