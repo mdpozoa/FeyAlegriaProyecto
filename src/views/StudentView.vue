@@ -130,11 +130,23 @@
         </form>
       </div>
     </div>
+
+    <!-- Toast Alert de Revisión Emergente -->
+    <transition name="fade-slide">
+      <div class="toast-alert glass-card" v-if="showToast && latestReviewedNotif">
+        <div class="toast-header-popup">
+          <span class="toast-icon">🚨</span>
+          <strong>Reporte Atendido</strong>
+          <button @click="showToast = false" class="toast-close">&times;</button>
+        </div>
+        <p>Tu reporte de <strong>{{ latestReviewedNotif.tipo }}</strong> ha sido revisado y atendido por las autoridades.</p>
+      </div>
+    </transition>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import IncidentMap from '../components/IncidentMap.vue'
 import { useIncidentStore } from '../stores/incidentStore'
 import { useAuthStore } from '../stores/authStore'
@@ -171,6 +183,26 @@ const dismissAll = () => {
   showNotificationsMenu.value = false
 }
 
+// Alertas emergentes (Toast Alert) en tiempo real
+const showToast = ref(false)
+const latestReviewedNotif = ref(null)
+
+watch(activeNotifications, (newVal, oldVal) => {
+  const oldLength = oldVal ? oldVal.length : 0
+  if (newVal.length > oldLength) {
+    // Detectar cuál es el reporte nuevo
+    const newItems = newVal.filter(item => !oldVal || !oldVal.some(o => o.id === item.id))
+    if (newItems.length > 0) {
+      latestReviewedNotif.value = newItems[0]
+      showToast.value = true
+      // Ocultar automáticamente tras 5 segundos
+      setTimeout(() => {
+        showToast.value = false
+      }, 5000)
+    }
+  }
+}, { deep: true })
+
 const formData = ref({
   tipo: 'Robo',
   severidad: 'HIGH',
@@ -178,9 +210,22 @@ const formData = ref({
   descripcion: ''
 })
 
+let pollInterval = null
+
 onMounted(() => {
   if (store.incidents.length === 0) {
     store.fetchIncidents()
+  }
+
+  // Polling cada 4 segundos para actualizar incidentes y estados (soporte tiempo real multiventana)
+  pollInterval = setInterval(() => {
+    store.fetchIncidents()
+  }, 4000)
+})
+
+onUnmounted(() => {
+  if (pollInterval) {
+    clearInterval(pollInterval)
   }
 })
 
@@ -698,5 +743,61 @@ const submitReport = async () => {
 
 .btn-dismiss-item:hover {
   color: var(--primary-color);
+}
+
+/* ESTILOS DE TOAST ALERTS EMERGENTES */
+.toast-alert {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 320px;
+  background-color: white;
+  border-left: 4px solid var(--success-color);
+  padding: 1.25rem;
+  box-shadow: var(--glass-shadow);
+  z-index: 3000;
+  border-radius: 8px 16px 16px 8px;
+  border-top: 1px solid var(--border-color);
+  border-right: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.toast-header-popup {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.toast-header-popup strong {
+  font-size: 0.85rem;
+  color: var(--dark-color);
+  flex: 1;
+  font-weight: 800;
+}
+
+.toast-icon {
+  font-size: 1.1rem;
+}
+
+.toast-close {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  cursor: pointer;
+  color: #94a3b8;
+  padding: 0;
+  line-height: 1;
+}
+
+.toast-close:hover {
+  color: var(--primary-color);
+}
+
+.toast-alert p {
+  font-size: 0.8rem;
+  color: var(--dark-light);
+  line-height: 1.4;
+  margin: 0;
 }
 </style>

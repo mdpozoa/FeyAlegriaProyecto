@@ -141,7 +141,43 @@ const markAsReviewed = async (id) => {
 }
 
 const exportData = () => {
-  alert('Se ha generado y descargado el reporte consolidado de incidentes en formato PDF/Excel estructurado con el formato oficial para la Policía Nacional.')
+  if (store.incidents.length === 0) {
+    alert('No hay incidentes registrados para exportar.')
+    return
+  }
+
+  // Estructurar cabeceras en formato CSV compatible
+  const headers = ['ID Reporte', 'Tipo Incidente', 'Nivel Severidad', 'Jornada Escolar', 'Hora Aproximada', 'Latitud', 'Longitud', 'Estado Actual', 'Detalles / Descripción']
+  
+  // Mapear filas con escape de comillas dobles
+  const rows = store.incidents.map(i => [
+    i.id,
+    i.tipo,
+    i.severidad === 'HIGH' ? 'CRÍTICO' : i.severidad === 'MEDIUM' ? 'PREVENTIVO' : 'BAJO',
+    i.jornada,
+    i.horaAprox,
+    i.latitud,
+    i.longitud,
+    i.estado || 'Reportado',
+    i.descripcion || 'Sin descripción'
+  ])
+
+  // Añadir BOM (Byte Order Mark) para soporte UTF-8 en Excel
+  const csvContent = '\uFEFF' + [
+    headers.join(','),
+    ...rows.map(row => row.map(val => `"${String(val).replace(/"/g, '""')}"`).join(','))
+  ].join('\n')
+
+  // Crear y disparar la descarga en el navegador
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.setAttribute('href', url)
+  link.setAttribute('download', `reporte_policia_nacional_${new Date().toISOString().slice(0, 10)}.csv`)
+  link.style.visibility = 'hidden'
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
 }
 </script>
 
