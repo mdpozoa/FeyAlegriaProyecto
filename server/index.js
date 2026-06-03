@@ -105,3 +105,21 @@ app.post('/api/incidents', async (req, res) => {
     res.status(500).json({ error: 'Error al registrar el incidente' })
   }
 })
+
+// 4. Actualizar estado de un incidente
+app.patch('/api/incidents/:id/status', async (req, res) => {
+  const { id } = req.params
+  const { estado } = req.body
+
+  if (!estado) {
+    return res.status(400).json({ error: 'Falta el campo estado' })
+  }
+
+  try {
+    await db.run('UPDATE incidentes SET estado = ? WHERE id = ?', [estado, id])
+    res.json({ id, estado })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: 'Error al actualizar el estado del incidente' })
+  }
+})

@@ -55,6 +55,22 @@ export const useIncidentStore = defineStore('incident', {
       } finally {
         this.isLoading = false
       }
+    },
+
+    async updateIncidentStatus(id, newStatus) {
+      this.isLoading = true
+      try {
+        await IncidentController.updateIncidentStatus(id, newStatus)
+        const idx = this.incidents.findIndex(i => i.id === id)
+        if (idx !== -1) {
+          this.incidents[idx].estado = newStatus
+          localStorage.setItem('incidents', JSON.stringify(this.incidents))
+        }
+      } catch (err) {
+        this.error = err.message
+      } finally {
+        this.isLoading = false
+      }
     }
   }
 })

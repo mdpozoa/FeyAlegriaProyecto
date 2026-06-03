@@ -40,10 +40,18 @@ export async function initDB() {
       longitud REAL NOT NULL,
       reportero_id TEXT,
       descripcion TEXT,
+      estado TEXT DEFAULT 'Reportado',
       creado_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (reportero_id) REFERENCES usuarios(id) ON DELETE SET NULL
     )
   `)
+
+  // Intentar agregar la columna estado en caso de que la tabla ya existiera previamente
+  try {
+    await db.exec("ALTER TABLE incidentes ADD COLUMN estado TEXT DEFAULT 'Reportado'")
+  } catch (e) {
+    // Ignorar si la columna ya existe en la base de datos
+  }
 
   // Poblar base de datos con usuarios y datos semilla para Fe y Alegría
   const userExist = await db.get("SELECT id FROM usuarios LIMIT 1")

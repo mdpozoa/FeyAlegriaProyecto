@@ -13,13 +13,44 @@
         <p v-else class="selection-alert">Modo Selección Activo: Haz clic en el mapa para marcar el punto exacto del incidente.</p>
       </div>
       
-      <button v-if="!seleccionando" class="btn-report" @click="activarSeleccion">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
-        REPORTAR INCIDENTE
-      </button>
-      <button v-else class="btn-cancel" @click="cancelarSeleccion">
-        CANCELAR SELECCIÓN
-      </button>
+      <div class="banner-actions">
+        <!-- Notificaciones de reportes revisados -->
+        <div class="notification-wrapper" v-if="activeNotifications.length > 0">
+          <button class="btn-bell" @click="showNotificationsMenu = !showNotificationsMenu">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+            <span class="bell-badge">{{ activeNotifications.length }}</span>
+          </button>
+          
+          <div class="notification-dropdown glass-card" v-if="showNotificationsMenu">
+            <div class="dropdown-header">
+              <h4>Reportes Revisados</h4>
+              <button @click="dismissAll" class="btn-clear-all">Limpiar</button>
+            </div>
+            <div class="dropdown-body">
+              <div 
+                v-for="notif in activeNotifications" 
+                :key="notif.id" 
+                class="notif-item"
+              >
+                <div class="notif-icon">🔔</div>
+                <div class="notif-text">
+                  <p>Tu reporte de <strong>{{ notif.tipo }}</strong> ha sido revisado por la directiva.</p>
+                  <span class="notif-time">{{ notif.horaAprox }} - {{ notif.jornada }}</span>
+                </div>
+                <button @click="dismissNotification(notif.id)" class="btn-dismiss-item">&times;</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button v-if="!seleccionando" class="btn-report" @click="activarSeleccion">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+          REPORTAR INCIDENTE
+        </button>
+        <button v-else class="btn-cancel" @click="cancelarSeleccion">
+          CANCELAR SELECCIÓN
+        </button>
+      </div>
     </div>
 
     <!-- Sección del Mapa -->
@@ -103,7 +134,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import IncidentMap from '../components/IncidentMap.vue'
 import { useIncidentStore } from '../stores/incidentStore'
 import { useAuthStore } from '../stores/authStore'
@@ -114,6 +145,31 @@ const authStore = useAuthStore()
 const showModal = ref(false)
 const seleccionando = ref(false)
 const selectedLocation = ref(null)
+
+// Gestión de notificaciones locales de reportes revisados
+const showNotificationsMenu = ref(false)
+const dismissedNotifs = ref(JSON.parse(localStorage.getItem(`dismissed_notifs_${authStore.user?.id}`) || '[]'))
+
+const activeNotifications = computed(() => {
+  return store.incidents.filter(i => {
+    return i.reporteroId === authStore.user?.id && 
+           i.estado === 'Revisado' && 
+           !dismissedNotifs.value.includes(i.id)
+  })
+})
+
+const dismissNotification = (id) => {
+  dismissedNotifs.value.push(id)
+  localStorage.setItem(`dismissed_notifs_${authStore.user?.id}`, JSON.stringify(dismissedNotifs.value))
+}
+
+const dismissAll = () => {
+  activeNotifications.value.forEach(n => {
+    dismissedNotifs.value.push(n.id)
+  })
+  localStorage.setItem(`dismissed_notifs_${authStore.user?.id}`, JSON.stringify(dismissedNotifs.value))
+  showNotificationsMenu.value = false
+}
 
 const formData = ref({
   tipo: 'Robo',
@@ -484,5 +540,163 @@ const submitReport = async () => {
 .fade-slide-enter-from, .fade-slide-leave-to {
   opacity: 0;
   transform: translateY(-8px);
+}
+
+/* SISTEMA DE NOTIFICACIONES DE LA CAMPANA */
+.banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-shrink: 0;
+}
+
+.notification-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.btn-bell {
+  background: white;
+  border: 1px solid var(--border-color);
+  color: var(--dark-light);
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: all 0.2s;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+}
+
+.btn-bell:hover {
+  background-color: #f8fafc;
+  color: var(--primary-color);
+  border-color: #cbd5e1;
+}
+
+.bell-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background-color: var(--primary-color);
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 800;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(220, 38, 38, 0.2);
+}
+
+.notification-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 320px;
+  background: white;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.05);
+  border-radius: 16px;
+  z-index: 1000;
+  overflow: hidden;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.dropdown-header {
+  padding: 0.85rem 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  background-color: #f8fafc;
+}
+
+.dropdown-header h4 {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--dark-color);
+  margin: 0;
+}
+
+.btn-clear-all {
+  background: none;
+  border: none;
+  font-size: 0.725rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  cursor: pointer;
+  padding: 0;
+}
+
+.btn-clear-all:hover {
+  color: var(--primary-hover);
+  text-decoration: underline;
+}
+
+.dropdown-body {
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.notif-item {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.95rem 1.25rem;
+  border-bottom: 1px solid #f1f5f9;
+  position: relative;
+  transition: background-color 0.2s;
+}
+
+.notif-item:hover {
+  background-color: #f8fafc;
+}
+
+.notif-item:last-child {
+  border-bottom: none;
+}
+
+.notif-icon {
+  font-size: 1.15rem;
+  flex-shrink: 0;
+}
+
+.notif-text p {
+  font-size: 0.8rem;
+  color: var(--dark-color);
+  line-height: 1.4;
+  margin: 0 0 0.25rem 0;
+}
+
+.notif-time {
+  font-size: 0.675rem;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.btn-dismiss-item {
+  background: none;
+  border: none;
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: #94a3b8;
+  cursor: pointer;
+  position: absolute;
+  top: 0.5rem;
+  right: 0.75rem;
+  transition: color 0.2s;
+  padding: 0;
+  line-height: 1;
+}
+
+.btn-dismiss-item:hover {
+  color: var(--primary-color);
 }
 </style>

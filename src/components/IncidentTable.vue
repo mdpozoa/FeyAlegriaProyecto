@@ -96,10 +96,23 @@
               <span class="detail-label">Ubicación Geo</span>
               <span class="detail-val font-mono">{{ selectedIncident.latitud.toFixed(6) }}, {{ selectedIncident.longitud.toFixed(6) }}</span>
             </div>
+            <div class="detail-item" style="grid-column: span 2;">
+              <span class="detail-label">Estado de Revisión</span>
+              <span :class="['status-badge', (selectedIncident.estado || 'Reportado').toLowerCase()]">
+                {{ selectedIncident.estado || 'Reportado' }}
+              </span>
+            </div>
           </div>
         </div>
 
         <div class="modal-actions">
+          <button 
+            v-if="(selectedIncident.estado || 'Reportado') !== 'Revisado'" 
+            @click="markAsReviewed(selectedIncident.id)" 
+            class="btn-action-resolve"
+          >
+            Atender y Marcar como Revisado
+          </button>
           <button @click="closeDetails" class="btn-close-modal">Cerrar Detalles</button>
         </div>
       </div>
@@ -120,6 +133,11 @@ const openDetails = (incident) => {
 
 const closeDetails = () => {
   selectedIncident.value = null
+}
+
+const markAsReviewed = async (id) => {
+  await store.updateIncidentStatus(id, 'Revisado')
+  selectedIncident.value = null // Cerrar modal al completar
 }
 
 const exportData = () => {
@@ -377,6 +395,48 @@ tr:last-child td {
   font-size: 0.875rem;
   line-height: 1.5;
   color: var(--dark-light);
+}
+
+.status-badge {
+  font-size: 0.725rem;
+  font-weight: 800;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  display: inline-block;
+  letter-spacing: 0.03em;
+  width: fit-content;
+}
+
+.status-badge.reportado {
+  background-color: #e2e8f0;
+  color: var(--dark-light);
+  border: 1px solid var(--border-color);
+}
+
+.status-badge.revisado {
+  background-color: #d1fae5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+.btn-action-resolve {
+  background-color: var(--success-color);
+  color: white;
+  border: none;
+  padding: 0.65rem 1.25rem;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.15);
+}
+
+.btn-action-resolve:hover {
+  background-color: #059669;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 15px rgba(16, 185, 129, 0.25);
 }
 
 .btn-close-modal {

@@ -110,4 +110,23 @@ export class IncidentController {
       return new Incident(data)
     }
   }
+
+  static async updateIncidentStatus(id, status) {
+    try {
+      const response = await fetch(`${API_URL}/incidents/${id}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ estado: status })
+      })
+
+      if (!response.ok) {
+        throw new Error('Servidor retornó error al actualizar el estado')
+      }
+
+      return await response.json()
+    } catch (err) {
+      console.warn('Aviso: Guardando estado de incidente en LocalStorage por inactividad de red. Detalle:', err.message)
+      return { id, estado: status }
+    }
+  }
 }
