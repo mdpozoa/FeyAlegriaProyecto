@@ -1,6 +1,8 @@
 import { Incident } from '../models/Incident'
 
-const API_URL = 'http://localhost:3000/api'
+const API_URL = typeof window !== 'undefined' && window.location.hostname
+  ? `http://${window.location.hostname}:3000/api`
+  : 'http://localhost:3000/api'
 
 export class IncidentController {
   // Intentar conectar con el backend de SQLite, con fallback de seguridad a LocalStorage

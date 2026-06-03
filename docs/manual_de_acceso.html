@@ -1,0 +1,1497 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manual de Acceso – SafeCampus Monitor | Fe y Alegría</title>
+  <meta name="description" content="Manual de usuario para acceder y utilizar SafeCampus Monitor, la plataforma de reporte de incidentes de seguridad del Movimiento Fe y Alegría." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    /* ===================== RESET & BASE ===================== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --red-600:   #dc2626;
+      --red-700:   #b91c1c;
+      --red-100:   #fee2e2;
+      --red-50:    #fef2f2;
+      --slate-900: #0f172a;
+      --slate-700: #334155;
+      --slate-500: #64748b;
+      --slate-300: #cbd5e1;
+      --slate-100: #f1f5f9;
+      --slate-50:  #f8fafc;
+      --white:     #ffffff;
+      --amber-500: #f59e0b;
+      --blue-500:  #3b82f6;
+      --green-500: #22c55e;
+      --green-100: #dcfce7;
+      --green-700: #15803d;
+    }
+
+    html { scroll-behavior: smooth; font-size: 16px; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--slate-50);
+      color: var(--slate-900);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ===================== PRINT ===================== */
+    @media print {
+      .no-print { display: none !important; }
+      body { background: white; font-size: 12pt; }
+      .hero { background: #dc2626 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .section { page-break-inside: avoid; }
+      a { text-decoration: none; color: inherit; }
+    }
+
+    /* ===================== HERO / PORTADA ===================== */
+    .hero {
+      background: linear-gradient(135deg, var(--red-700) 0%, var(--red-600) 50%, #ef4444 100%);
+      color: white;
+      padding: 4rem 2rem 5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -80px; right: -80px;
+      width: 360px; height: 360px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.05);
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -60px; left: -60px;
+      width: 280px; height: 280px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.04);
+    }
+
+    .hero-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 9999px;
+      padding: 0.35rem 1rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-logo {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .logo-icon {
+      background: white;
+      border-radius: 16px;
+      padding: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    }
+
+    .logo-text h1 {
+      font-size: 2.5rem;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+    }
+
+    .logo-text p {
+      font-size: 1rem;
+      font-weight: 400;
+      opacity: 0.85;
+      margin-top: 0.25rem;
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      margin-top: 2.5rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .meta-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      opacity: 0.65;
+    }
+
+    .meta-value {
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    /* ===================== TOC (Índice) ===================== */
+    .toc-wrapper {
+      max-width: 900px;
+      margin: -2rem auto 0;
+      padding: 0 2rem;
+      position: relative;
+      z-index: 10;
+    }
+
+    .toc-card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(15,23,42,0.1);
+      padding: 2rem;
+      margin-bottom: 3rem;
+    }
+
+    .toc-title {
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--slate-500);
+      margin-bottom: 1rem;
+    }
+
+    .toc-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 0.5rem;
+    }
+
+    .toc-link {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.65rem 0.85rem;
+      border-radius: 8px;
+      color: var(--slate-700);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+
+    .toc-link:hover {
+      background: var(--red-50);
+      border-color: var(--red-100);
+      color: var(--red-600);
+    }
+
+    .toc-num {
+      background: var(--slate-100);
+      color: var(--slate-500);
+      border-radius: 6px;
+      width: 24px; height: 24px;
+      font-size: 0.7rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* ===================== MAIN LAYOUT ===================== */
+    .main-content {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 2rem 4rem;
+    }
+
+    /* ===================== SECTIONS ===================== */
+    .section {
+      margin-bottom: 3rem;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.75rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid var(--slate-100);
+    }
+
+    .section-icon {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 1.25rem;
+    }
+
+    .section-icon.red    { background: var(--red-50);   }
+    .section-icon.slate  { background: var(--slate-100); }
+    .section-icon.green  { background: var(--green-100); }
+    .section-icon.amber  { background: #fef3c7; }
+    .section-icon.blue   { background: #eff6ff; }
+
+    .section-title {
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: var(--slate-900);
+      letter-spacing: -0.02em;
+    }
+
+    .section-subtitle {
+      font-size: 0.85rem;
+      color: var(--slate-500);
+      margin-top: 0.15rem;
+    }
+
+    /* ===================== CARDS ===================== */
+    .card {
+      background: white;
+      border-radius: 12px;
+      border: 1px solid var(--slate-300);
+      overflow: hidden;
+    }
+
+    .card-body {
+      padding: 1.5rem;
+    }
+
+    /* ===================== CREDENTIALS BOX ===================== */
+    .creds-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+
+    .cred-card {
+      background: white;
+      border-radius: 14px;
+      border: 1px solid var(--slate-300);
+      overflow: hidden;
+      transition: all 0.3s;
+    }
+
+    .cred-card:hover {
+      box-shadow: 0 8px 24px rgba(15,23,42,0.08);
+      transform: translateY(-2px);
+    }
+
+    .cred-header {
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      border-bottom: 1px solid var(--slate-100);
+    }
+
+    .cred-header.student-bach { background: linear-gradient(135deg, #fef2f2, #fff); }
+    .cred-header.student-basic { background: linear-gradient(135deg, #eff6ff, #fff); }
+    .cred-header.authority { background: linear-gradient(135deg, var(--slate-900), var(--slate-700)); color: white; }
+
+    .cred-avatar {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    .cred-avatar.red   { background: var(--red-100); }
+    .cred-avatar.blue  { background: #dbeafe; }
+    .cred-avatar.dark  { background: rgba(255,255,255,0.12); }
+
+    .cred-role {
+      font-size: 0.775rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .cred-level {
+      font-size: 0.7rem;
+      opacity: 0.65;
+      margin-top: 0.1rem;
+    }
+
+    .cred-body {
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .cred-field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .cred-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--slate-500);
+    }
+
+    .cred-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      background: var(--slate-100);
+      color: var(--red-600);
+      border-radius: 6px;
+      padding: 0.4rem 0.65rem;
+      display: inline-block;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      word-break: break-all;
+    }
+
+    .authority .cred-value {
+      background: rgba(255,255,255,0.1);
+      color: white;
+    }
+
+    /* ===================== STEPS ===================== */
+    .steps-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .step {
+      display: flex;
+      gap: 1.25rem;
+      position: relative;
+    }
+
+    .step:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      left: 19px;
+      top: 44px;
+      bottom: 0;
+      width: 2px;
+      background: var(--slate-100);
+    }
+
+    .step-indicator {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex-shrink: 0;
+      padding-top: 0.25rem;
+    }
+
+    .step-num {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: var(--red-600);
+      color: white;
+      font-size: 0.85rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(220,38,38,0.3);
+      position: relative;
+      z-index: 1;
+    }
+
+    .step-body {
+      padding-bottom: 2rem;
+      flex: 1;
+    }
+
+    .step-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--slate-900);
+      margin-bottom: 0.5rem;
+    }
+
+    .step-desc {
+      font-size: 0.9rem;
+      color: var(--slate-500);
+      line-height: 1.6;
+    }
+
+    .step-visual {
+      margin-top: 1rem;
+      background: var(--slate-50);
+      border: 1px solid var(--slate-300);
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      font-size: 0.875rem;
+      color: var(--slate-700);
+    }
+
+    /* ===================== FEATURE GRID ===================== */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+    }
+
+    .feature-card {
+      background: white;
+      border: 1px solid var(--slate-300);
+      border-radius: 12px;
+      padding: 1.25rem;
+      transition: all 0.3s;
+    }
+
+    .feature-card:hover {
+      box-shadow: 0 6px 20px rgba(15,23,42,0.07);
+      transform: translateY(-2px);
+      border-color: var(--red-100);
+    }
+
+    .feature-icon {
+      font-size: 1.75rem;
+      margin-bottom: 0.75rem;
+      display: block;
+    }
+
+    .feature-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--slate-900);
+      margin-bottom: 0.35rem;
+    }
+
+    .feature-desc {
+      font-size: 0.8rem;
+      color: var(--slate-500);
+      line-height: 1.5;
+    }
+
+    /* ===================== ALERT / CALLOUT ===================== */
+    .callout {
+      display: flex;
+      gap: 1rem;
+      padding: 1rem 1.25rem;
+      border-radius: 10px;
+      margin: 1.25rem 0;
+      align-items: flex-start;
+    }
+
+    .callout.info    { background: #eff6ff; border-left: 4px solid var(--blue-500); }
+    .callout.warning { background: #fefce8; border-left: 4px solid var(--amber-500); }
+    .callout.danger  { background: var(--red-50); border-left: 4px solid var(--red-600); }
+    .callout.success { background: var(--green-100); border-left: 4px solid var(--green-500); }
+
+    .callout-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 0.1rem; }
+
+    .callout-text {
+      font-size: 0.875rem;
+      line-height: 1.55;
+    }
+
+    .callout-text strong { font-weight: 700; display: block; margin-bottom: 0.25rem; }
+
+    /* ===================== ROLE MATRIX ===================== */
+    .role-table-wrap {
+      overflow-x: auto;
+      border-radius: 12px;
+      border: 1px solid var(--slate-300);
+    }
+
+    .role-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+
+    .role-table thead th {
+      background: var(--slate-900);
+      color: white;
+      padding: 0.85rem 1.25rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      text-align: left;
+    }
+
+    .role-table tbody td {
+      padding: 0.9rem 1.25rem;
+      border-bottom: 1px solid var(--slate-100);
+      color: var(--slate-700);
+      vertical-align: middle;
+    }
+
+    .role-table tbody tr:last-child td { border-bottom: none; }
+    .role-table tbody tr:hover td { background: var(--slate-50); }
+
+    .check { color: var(--green-500); font-weight: 700; font-size: 1rem; }
+    .cross { color: #94a3b8; font-size: 1rem; }
+    .partial { color: var(--amber-500); font-weight: 700; font-size: 0.85rem; }
+
+    .role-badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 9999px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .role-badge.stu  { background: var(--red-100); color: var(--red-600); }
+    .role-badge.auth { background: var(--slate-100); color: var(--slate-700); }
+
+    /* ===================== FAQ ===================== */
+    .faq-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .faq-item {
+      background: white;
+      border: 1px solid var(--slate-300);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .faq-q {
+      padding: 1rem 1.25rem;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--slate-900);
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+
+    .faq-q-icon {
+      background: var(--red-50);
+      color: var(--red-600);
+      border-radius: 6px;
+      width: 24px; height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 900;
+      flex-shrink: 0;
+      margin-top: 0.1rem;
+    }
+
+    .faq-a {
+      padding: 0 1.25rem 1rem 3.25rem;
+      font-size: 0.875rem;
+      color: var(--slate-500);
+      line-height: 1.6;
+    }
+
+    /* ===================== URL BOX ===================== */
+    .url-box {
+      background: var(--slate-900);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .url-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #94a3b8;
+      margin-bottom: 0.35rem;
+    }
+
+    .url-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      color: #86efac;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+    }
+
+    .copy-hint {
+      font-size: 0.7rem;
+      color: #64748b;
+      margin-top: 0.25rem;
+    }
+
+    .url-status {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(34,197,94,0.1);
+      border: 1px solid rgba(34,197,94,0.2);
+      border-radius: 9999px;
+      padding: 0.35rem 0.85rem;
+      flex-shrink: 0;
+    }
+
+    .status-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--green-500);
+      animation: statusPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes statusPulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(0.85); }
+    }
+
+    .status-text { font-size: 0.75rem; font-weight: 700; color: var(--green-500); }
+
+    /* ===================== DIVIDER ===================== */
+    hr.section-divider {
+      border: none;
+      border-top: 1px solid var(--slate-200);
+      margin: 2rem 0;
+    }
+
+    /* ===================== FOOTER ===================== */
+    .doc-footer {
+      background: var(--slate-900);
+      color: white;
+      padding: 2.5rem 2rem;
+      margin-top: 4rem;
+    }
+
+    .footer-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .footer-brand {
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .footer-brand span { color: #fca5a5; }
+
+    .footer-meta {
+      font-size: 0.775rem;
+      color: #64748b;
+    }
+
+    /* ===================== PRINT BUTTON ===================== */
+    .print-btn {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: var(--red-600);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      padding: 0.75rem 1.5rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.875rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 8px 24px rgba(220,38,38,0.35);
+      transition: all 0.25s;
+      z-index: 100;
+    }
+
+    .print-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 32px rgba(220,38,38,0.45);
+    }
+
+    /* ===================== INLINE UTILS ===================== */
+    .tag {
+      display: inline-block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.825rem;
+      background: var(--red-50);
+      color: var(--red-600);
+      border-radius: 5px;
+      padding: 0.15rem 0.4rem;
+      font-weight: 600;
+    }
+
+    .highlight {
+      background: var(--red-50);
+      color: var(--red-700);
+      padding: 0.1rem 0.3rem;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+
+    ul.styled-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      padding: 0;
+    }
+
+    ul.styled-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.7rem;
+      font-size: 0.875rem;
+      color: var(--slate-700);
+    }
+
+    ul.styled-list li::before {
+      content: '→';
+      color: var(--red-600);
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 0.05rem;
+    }
+
+    @media (max-width: 640px) {
+      .hero { padding: 2.5rem 1.25rem 4rem; }
+      .logo-text h1 { font-size: 1.75rem; }
+      .toc-wrapper { padding: 0 1rem; }
+      .main-content { padding: 0 1rem 3rem; }
+      .creds-grid { grid-template-columns: 1fr; }
+      .feature-grid { grid-template-columns: 1fr; }
+      .hero-meta { gap: 1rem; }
+      .print-btn { bottom: 1rem; right: 1rem; padding: 0.65rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== HERO / PORTADA ==================== -->
+  <div class="hero">
+    <div class="hero-inner">
+      <div class="hero-badge">
+        📋 Documento Oficial · Versión PMV2
+      </div>
+
+      <div class="hero-logo">
+        <div class="logo-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="52" height="52">
+            <path d="M50 85 C-5 45 15 10 50 38 C85 10 105 45 50 85 Z" fill="#dc2626"/>
+            <circle cx="36" cy="42" r="3.5" fill="white"/>
+            <path d="M36 46.5 C33.5 46.5 32 48.5 32 52 L32 59 C32 59.5 32.5 60 33 60 C33.5 60 34 59.5 34 59 L34 54.5 L35 54.5 L35 65 C35 65.5 35.5 66 36 66 C36.5 66 37 65.5 37 65 L37 54.5 L38 54.5 L38 65 C38 65.5 38.5 66 39 66 C39.5 66 40 65.5 40 65 L40 52 C40 48.5 38.5 46.5 36 46.5 Z" fill="white"/>
+            <circle cx="50" cy="42" r="3.5" fill="white"/>
+            <path d="M50 46.5 C47.5 46.5 46 48.5 46 52 L46 59 C46 59.5 46.5 60 47 60 C47.5 60 48 59.5 48 59 L48 54.5 L49 54.5 L49 65 C49 65.5 49.5 66 50 66 C50.5 66 51 65.5 51 65 L51 54.5 L52 54.5 L52 65 C52 65.5 52.5 66 53 66 C53.5 66 54 65.5 54 65 L54 52 C54 48.5 52.5 46.5 50 46.5 Z" fill="white"/>
+            <circle cx="64" cy="42" r="3.5" fill="white"/>
+            <path d="M64 46.5 C61.5 46.5 60 48.5 60 52 L60 59 C60 59.5 60.5 60 61 60 C61.5 60 62 59.5 62 59 L62 54.5 L63 54.5 L63 65 C63 65.5 63.5 66 64 66 C64.5 66 65 65.5 65 65 L65 54.5 L66 54.5 L66 65 C66 65.5 66.5 66 67 66 C67.5 66 68 65.5 68 65 L68 52 C68 48.5 66.5 46.5 64 46.5 Z" fill="white"/>
+            <path d="M38 51 L44 51 M52 51 L58 51" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="logo-text">
+          <h1>SafeCampus Monitor</h1>
+          <p>Manual de Acceso y Uso del Sistema</p>
+        </div>
+      </div>
+
+      <div class="hero-meta">
+        <div class="meta-item">
+          <span class="meta-label">Institución</span>
+          <span class="meta-value">Fe y Alegría — Ecuador</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Versión del Producto</span>
+          <span class="meta-value">PMV2 · 2026</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Plataforma</span>
+          <span class="meta-value">Web (Vercel)</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Perfiles de Usuario</span>
+          <span class="meta-value">Estudiante · Autoridad Docente</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== ÍNDICE ==================== -->
+  <div class="toc-wrapper">
+    <div class="toc-card">
+      <p class="toc-title">📑 Contenido del Manual</p>
+      <div class="toc-grid">
+        <a href="#sec-intro"        class="toc-link"><span class="toc-num">1</span> Introducción al Sistema</a>
+        <a href="#sec-acceso"       class="toc-link"><span class="toc-num">2</span> Cómo Acceder al Portal</a>
+        <a href="#sec-credenciales" class="toc-link"><span class="toc-num">3</span> Credenciales de Acceso</a>
+        <a href="#sec-estudiante"   class="toc-link"><span class="toc-num">4</span> Perfil Estudiante</a>
+        <a href="#sec-autoridad"    class="toc-link"><span class="toc-num">5</span> Perfil Autoridad</a>
+        <a href="#sec-funciones"    class="toc-link"><span class="toc-num">6</span> Funciones Principales</a>
+        <a href="#sec-roles"        class="toc-link"><span class="toc-num">7</span> Tabla de Permisos por Rol</a>
+        <a href="#sec-faq"          class="toc-link"><span class="toc-num">8</span> Preguntas Frecuentes</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== CONTENIDO PRINCIPAL ==================== -->
+  <main class="main-content">
+
+    <!-- ===== SECCIÓN 1: INTRODUCCIÓN ===== -->
+    <section class="section" id="sec-intro">
+      <div class="section-header">
+        <div class="section-icon red">🛡️</div>
+        <div>
+          <h2 class="section-title">1. Introducción al Sistema</h2>
+          <p class="section-subtitle">Qué es SafeCampus Monitor y para qué sirve</p>
+        </div>
+      </div>
+
+      <p style="font-size:0.95rem; color:var(--slate-700); line-height:1.7; margin-bottom:1.25rem;">
+        <strong>SafeCampus Monitor</strong> es una plataforma web diseñada exclusivamente para la comunidad educativa del <strong>Movimiento Fe y Alegría – Ecuador</strong>. Su propósito es permitir que los estudiantes reporten incidentes de seguridad ocurridos dentro y alrededor del campus, y que las autoridades docentes puedan monitorear, analizar y gestionar esos reportes a través de un <strong>dashboard interactivo con mapa geolocalizado</strong>.
+      </p>
+
+      <div class="feature-grid">
+        <div class="feature-card">
+          <span class="feature-icon">📍</span>
+          <div class="feature-title">Reporte Geolocalizados</div>
+          <div class="feature-desc">Los estudiantes marcan el punto exacto del incidente directamente sobre el mapa del campus.</div>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">📊</span>
+          <div class="feature-title">Dashboard en Tiempo Real</div>
+          <div class="feature-desc">Las autoridades ven estadísticas actualizadas: total de reportes, zonas críticas y último incidente.</div>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">🔒</span>
+          <div class="feature-title">Acceso Seguro por Rol</div>
+          <div class="feature-desc">El sistema diferencia automáticamente entre el portal del estudiante y el panel de la autoridad.</div>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">📤</span>
+          <div class="feature-title">Exportación Oficial</div>
+          <div class="feature-desc">Las autoridades pueden generar reportes consolidados en formato compatible con la Policía Nacional.</div>
+        </div>
+      </div>
+
+      <div class="callout info" style="margin-top:1.5rem;">
+        <span class="callout-icon">ℹ️</span>
+        <div class="callout-text">
+          <strong>Sistema PMV2 activo</strong>
+          Este manual documenta la versión 2 del Producto Mínimo Viable (PMV2), que incorpora las mejoras derivadas de la validación con 10 usuarios reales del campus Fe y Alegría.
+        </div>
+      </div>
+    </section>
+
+    <hr class="section-divider" />
+
+    <!-- ===== SECCIÓN 2: CÓMO ACCEDER ===== -->
+    <section class="section" id="sec-acceso">
+      <div class="section-header">
+        <div class="section-icon blue">🌐</div>
+        <div>
+          <h2 class="section-title">2. Cómo Acceder al Portal</h2>
+          <p class="section-subtitle">Pasos para ingresar al sistema desde cualquier dispositivo</p>
+        </div>
+      </div>
+
+      <p style="font-size:0.875rem; color:var(--slate-500); margin-bottom:1.5rem;">
+        SafeCampus Monitor es una aplicación <strong>100% web</strong>. No se requiere instalar ninguna aplicación. Solo necesitas un navegador actualizado y conexión a internet.
+      </p>
+
+      <!-- URL de acceso -->
+      <div class="url-box" style="margin-bottom:1.75rem;">
+        <div>
+          <div class="url-label">🔗 Dirección del Portal</div>
+          <div class="url-value">https://fey-alegria-proyecto.vercel.app</div>
+          <div class="copy-hint">Copia y pega esta dirección en tu navegador</div>
+        </div>
+        <div class="url-status">
+          <div class="status-dot"></div>
+          <span class="status-text">EN LÍNEA</span>
+        </div>
+      </div>
+
+      <div class="callout warning">
+        <span class="callout-icon">⚠️</span>
+        <div class="callout-text">
+          <strong>Navegadores recomendados</strong>
+          Usa Google Chrome, Mozilla Firefox, Microsoft Edge o Safari en su versión más reciente. Evita Internet Explorer.
+        </div>
+      </div>
+
+      <!-- Pasos de acceso -->
+      <h3 style="font-size:1rem; font-weight:700; margin:1.75rem 0 1.25rem; color:var(--slate-900);">Pasos para ingresar:</h3>
+      <div class="steps-list">
+
+        <div class="step">
+          <div class="step-indicator">
+            <div class="step-num">1</div>
+          </div>
+          <div class="step-body">
+            <div class="step-title">Abre tu navegador web</div>
+            <div class="step-desc">En tu computadora, tablet o celular, abre Google Chrome, Firefox o Edge.</div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-indicator">
+            <div class="step-num">2</div>
+          </div>
+          <div class="step-body">
+            <div class="step-title">Escribe la dirección del portal</div>
+            <div class="step-desc">En la barra de direcciones del navegador (parte superior), escribe o pega la URL del sistema:</div>
+            <div class="step-visual">
+              <strong>Barra de direcciones →</strong> &nbsp;<span class="tag">https://fey-alegria-proyecto.vercel.app</span>
+              &nbsp;&nbsp; y presiona <span class="tag">Enter ↵</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-indicator">
+            <div class="step-num">3</div>
+          </div>
+          <div class="step-body">
+            <div class="step-title">Verás la pantalla de inicio de sesión</div>
+            <div class="step-desc">
+              Aparecerá el formulario de ingreso con el logo de SafeCampus y Fe y Alegría. Verás dos campos: <span class="highlight">Correo Institucional</span> y <span class="highlight">Contraseña</span>.
+            </div>
+            <div class="step-visual">
+              <strong>Pantalla de inicio de sesión:</strong><br />
+              — Campo: Correo Institucional (ej: <code>estudiante@feyalegria.edu.ec</code>)<br />
+              — Campo: Contraseña (oculta con ••••)<br />
+              — Botón rojo: <strong>INGRESAR AL PORTAL</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-indicator">
+            <div class="step-num">4</div>
+          </div>
+          <div class="step-body">
+            <div class="step-title">Ingresa tus credenciales</div>
+            <div class="step-desc">
+              Escribe tu correo y contraseña según tu perfil (ver sección 3). Luego presiona el botón <span class="highlight">INGRESAR AL PORTAL</span>.
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-indicator">
+            <div class="step-num">5</div>
+          </div>
+          <div class="step-body">
+            <div class="step-title">El sistema te redirige automáticamente</div>
+            <div class="step-desc">
+              El portal detecta tu rol y te lleva directamente a tu espacio:<br />
+              • Si eres <strong>Estudiante</strong> → ves el mapa con el botón de reporte de incidentes.<br />
+              • Si eres <strong>Autoridad</strong> → ves el dashboard completo con estadísticas, mapa y tabla de incidentes.
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="callout success" style="margin-top:1.5rem;">
+        <span class="callout-icon">✅</span>
+        <div class="callout-text">
+          <strong>¡Listo! Ya estás dentro del sistema.</strong>
+          No necesitas crear una cuenta nueva. Usa las credenciales que aparecen en la sección siguiente.
+        </div>
+      </div>
+    </section>
+
+    <hr class="section-divider" />
+
+    <!-- ===== SECCIÓN 3: CREDENCIALES ===== -->
+    <section class="section" id="sec-credenciales">
+      <div class="section-header">
+        <div class="section-icon amber">🔑</div>
+        <div>
+          <h2 class="section-title">3. Credenciales de Acceso</h2>
+          <p class="section-subtitle">Correos y contraseñas para cada tipo de usuario</p>
+        </div>
+      </div>
+
+      <p style="font-size:0.875rem; color:var(--slate-500); margin-bottom:1.5rem;">
+        El sistema tiene <strong>3 perfiles de acceso</strong> preconfigurados para demostración. Úsalos exactamente como aparecen abajo (respetando mayúsculas y minúsculas).
+      </p>
+
+      <div class="creds-grid">
+
+        <!-- Estudiante Bachillerato -->
+        <div class="cred-card">
+          <div class="cred-header student-bach">
+            <div class="cred-avatar red">🎓</div>
+            <div>
+              <div class="cred-role" style="color:var(--red-700);">Estudiante Bachillerato</div>
+              <div class="cred-level" style="color:var(--slate-500);">Nivel Secundaria · Bachillerato General</div>
+            </div>
+          </div>
+          <div class="cred-body">
+            <div class="cred-field">
+              <div class="cred-label">Correo Institucional</div>
+              <div class="cred-value">estudiante@feyalegria.edu.ec</div>
+            </div>
+            <div class="cred-field">
+              <div class="cred-label">Contraseña</div>
+              <div class="cred-value">Estudiante123</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Estudiante Básica -->
+        <div class="cred-card">
+          <div class="cred-header student-basic">
+            <div class="cred-avatar blue">📚</div>
+            <div>
+              <div class="cred-role" style="color:#1d4ed8;">Estudiante Básica</div>
+              <div class="cred-level" style="color:var(--slate-500);">Nivel Primaria · Educación Básica</div>
+            </div>
+          </div>
+          <div class="cred-body">
+            <div class="cred-field">
+              <div class="cred-label">Correo Institucional</div>
+              <div class="cred-value">estudiante.basica@feyalegria.edu.ec</div>
+            </div>
+            <div class="cred-field">
+              <div class="cred-label">Contraseña</div>
+              <div class="cred-value">Estudiante123</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Autoridad Docente -->
+        <div class="cred-card" style="grid-column: 1 / -1;">
+          <div class="cred-header authority">
+            <div class="cred-avatar dark">🏛️</div>
+            <div>
+              <div class="cred-role" style="color:white;">Autoridad / Docente</div>
+              <div class="cred-level" style="color:rgba(255,255,255,0.6);">Acceso al Dashboard Completo y Panel de Gestión</div>
+            </div>
+          </div>
+          <div class="cred-body" style="background:var(--slate-900);">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+              <div class="cred-field">
+                <div class="cred-label" style="color:#64748b;">Correo Institucional</div>
+                <div class="cred-value" style="background:rgba(255,255,255,0.08); color:#86efac;">autoridad@feyalegria.edu.ec</div>
+              </div>
+              <div class="cred-field">
+                <div class="cred-label" style="color:#64748b;">Contraseña</div>
+                <div class="cred-value" style="background:rgba(255,255,255,0.08); color:#86efac;">AdminSeguridad123</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="callout danger" style="margin-top:1.5rem;">
+        <span class="callout-icon">🔐</span>
+        <div class="callout-text">
+          <strong>Importante — Mayúsculas y minúsculas</strong>
+          Las contraseñas son sensibles a mayúsculas. Escríbelas exactamente como aparecen. Por ejemplo: <span class="tag">Estudiante123</span> tiene la <strong>E</strong> en mayúscula y la primera letra del número en medio.
+        </div>
+      </div>
+    </section>
+
+    <hr class="section-divider" />
+
+    <!-- ===== SECCIÓN 4: PERFIL ESTUDIANTE ===== -->
+    <section class="section" id="sec-estudiante">
+      <div class="section-header">
+        <div class="section-icon red">🎓</div>
+        <div>
+          <h2 class="section-title">4. Perfil Estudiante — Cómo Reportar un Incidente</h2>
+          <p class="section-subtitle">Flujo completo de reporte paso a paso</p>
+        </div>
+      </div>
+
+      <p style="font-size:0.875rem; color:var(--slate-500); margin-bottom:1.5rem;">
+        Al ingresar con una cuenta de estudiante, el sistema muestra automáticamente el <strong>Portal de Estudiante</strong>: un banner de bienvenida con tu nombre y nivel académico, y un mapa interactivo del campus con los incidentes existentes.
+      </p>
+
+      <h3 style="font-size:1rem; font-weight:700; margin-bottom:1.25rem; color:var(--slate-900);">Pasos para reportar un incidente:</h3>
+      <div class="steps-list">
+
+        <div class="step">
+          <div class="step-indicator"><div class="step-num">1</div></div>
+          <div class="step-body">
+            <div class="step-title">Presiona el botón "REPORTAR INCIDENTE"</div>
+            <div class="step-desc">
+              En la parte derecha del banner rojo, hay un botón con un ícono de alerta. Al hacer clic, se activa el <span class="highlight">Modo Selección</span>.
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-indicator"><div class="step-num">2</div></div>
+          <div class="step-body">
+            <div class="step-title">Haz clic en el mapa en el punto del incidente</div>
+            <div class="step-desc">
+              El mapa muestra el campus y sus alrededores. El borde del mapa se ilumina en rojo pulsante para indicar que está en modo de selección. <strong>Haz clic exactamente donde ocurrió el problema.</strong>
+            </div>
+            <div class="step-visual">
+              El sistema capturará automáticamente las coordenadas geográficas (latitud y longitud) del punto seleccionado.
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-indicator"><div class="step-num">3</div></div>
+          <div class="step-body">
+            <div class="step-title">Completa el formulario de detalles</div>
+            <div class="step-desc">
+              Aparecerá una ventana modal con tres campos obligatorios:
+            </div>
+            <div class="step-visual">
+              <strong>Tipo de Incidente:</strong> Selecciona entre:<br />
+              &nbsp;&nbsp;• Robo / Asalto<br />
+              &nbsp;&nbsp;• Acoso / Hostigamiento<br />
+              &nbsp;&nbsp;• Falta de Iluminación / Zona Oscura<br />
+              &nbsp;&nbsp;• Problema de Infraestructura<br />
+              &nbsp;&nbsp;• Otros (requiere descripción adicional)<br /><br />
+              <strong>Nivel de Alerta:</strong> Alta (Riesgo Crítico) · Media (Preventivo) · Baja (Informativo)<br /><br />
+              <strong>Jornada:</strong> Matutina o Vespertina
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-indicator"><div class="step-num">4</div></div>
+          <div class="step-body">
+            <div class="step-title">Haz clic en "Enviar Reporte Seguro"</div>
+            <div class="step-desc">
+              Al presionar el botón, el reporte queda registrado en el sistema con la ubicación exacta y la hora automática. El mapa se actualiza mostrando el nuevo marcador.
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="callout info" style="margin-top:1.5rem;">
+        <span class="callout-icon">💡</span>
+        <div class="callout-text">
+          <strong>¿Elegiste el tipo "Otros"?</strong>
+          El sistema mostrará automáticamente un campo de texto para que describas el incidente con tus propias palabras. Este campo es obligatorio si seleccionas esa opción.
+        </div>
+      </div>
+    </section>
+
+    <hr class="section-divider" />
+
+    <!-- ===== SECCIÓN 5: PERFIL AUTORIDAD ===== -->
+    <section class="section" id="sec-autoridad">
+      <div class="section-header">
+        <div class="section-icon slate">🏛️</div>
+        <div>
+          <h2 class="section-title">5. Perfil Autoridad — Panel de Monitoreo</h2>
+          <p class="section-subtitle">Cómo usar el dashboard completo de gestión</p>
+        </div>
+      </div>
+
+      <p style="font-size:0.875rem; color:var(--slate-500); margin-bottom:1.5rem;">
+        Al ingresar con la cuenta de autoridad docente, se carga el <strong>Panel de Monitoreo completo</strong> con tres secciones integradas: estadísticas, mapa y tabla de análisis.
+      </p>
+
+      <div class="feature-grid">
+
+        <div class="feature-card">
+          <span class="feature-icon">📈</span>
+          <div class="feature-title">Estadísticas Resumidas (Parte Superior)</div>
+          <div class="feature-desc">
+            Tres tarjetas muestran en tiempo real:<br />
+            • <strong>Total Reportes</strong> en el campus<br />
+            • <strong>Zonas Críticas</strong> que requieren atención urgente<br />
+            • <strong>Último Incidente</strong> registrado y su tipo
+          </div>
+        </div>
+
+        <div class="feature-card">
+          <span class="feature-icon">🗺️</span>
+          <div class="feature-title">Mapa Interactivo (Centro)</div>
+          <div class="feature-desc">
+            Visualiza todos los incidentes como marcadores sobre el mapa. Al hacer clic en un marcador se abre un popup con el tipo y severidad del incidente.
+          </div>
+        </div>
+
+        <div class="feature-card">
+          <span class="feature-icon">📋</span>
+          <div class="feature-title">Tabla de Análisis (Parte Inferior)</div>
+          <div class="feature-desc">
+            Listado completo de incidentes con columnas de: Tipo, Severidad, Jornada, Hora, Ubicación y acciones. Cada fila tiene el botón <strong>Ver Detalles</strong>.
+          </div>
+        </div>
+
+        <div class="feature-card">
+          <span class="feature-icon">📤</span>
+          <div class="feature-title">Exportar Reporte (Botón)</div>
+          <div class="feature-desc">
+            El botón oscuro <strong>"Exportar para Policía Nacional"</strong> genera un reporte consolidado con el formato oficial para entidades de seguridad.
+          </div>
+        </div>
+
+      </div>
+
+      <h3 style="font-size:1rem; font-weight:700; margin:1.75rem 0 1rem; color:var(--slate-900);">Cómo ver los detalles de un incidente:</h3>
+      <ul class="styled-list">
+        <li>En la tabla de análisis, localiza el incidente que te interesa.</li>
+        <li>Haz clic en el botón <span class="highlight">Ver Detalles</span> de esa fila.</li>
+        <li>Se abre una ventana con: categoría, descripción (si aplica), severidad, jornada, hora aproximada y coordenadas geográficas exactas.</li>
+        <li>Presiona <span class="highlight">Cerrar Detalles</span> o haz clic fuera de la ventana para regresar.</li>
+      </ul>
+
+      <div class="callout warning" style="margin-top:1.5rem;">
+        <span class="callout-icon">⚠️</span>
+        <div class="callout-text">
+          <strong>Nota sobre la exportación</strong>
+          En esta versión PMV2, el botón de exportación genera una confirmación en pantalla. La descarga real del archivo PDF/Excel será parte de la siguiente iteración del producto.
+        </div>
+      </div>
+    </section>
+
+    <hr class="section-divider" />
+
+    <!-- ===== SECCIÓN 6: FUNCIONES PRINCIPALES ===== -->
+    <section class="section" id="sec-funciones">
+      <div class="section-header">
+        <div class="section-icon green">⚙️</div>
+        <div>
+          <h2 class="section-title">6. Funciones Principales del Sistema</h2>
+          <p class="section-subtitle">Resumen de todas las capacidades disponibles</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <ul class="styled-list">
+            <li><strong>Inicio de sesión por rol:</strong> el sistema redirige automáticamente al portal correcto según el perfil del usuario.</li>
+            <li><strong>Reporte de incidentes con geolocalización:</strong> el estudiante hace clic en el mapa y el sistema registra las coordenadas exactas.</li>
+            <li><strong>5 categorías de incidentes</strong> predefinidas + opción "Otros" con campo libre de descripción.</li>
+            <li><strong>3 niveles de severidad:</strong> Alta (Crítico), Media (Preventivo), Baja (Informativo).</li>
+            <li><strong>Clasificación por jornada:</strong> Matutina o Vespertina para cruzar datos con horarios escolares.</li>
+            <li><strong>Registro automático de hora:</strong> el sistema toma la hora exacta del envío sin que el usuario deba ingresarla.</li>
+            <li><strong>Dashboard en tiempo real:</strong> las autoridades ven los cambios reflejados inmediatamente.</li>
+            <li><strong>Visualización en mapa:</strong> marcadores de colores según severidad del incidente.</li>
+            <li><strong>Tabla de análisis filtrable:</strong> toda la información organizada y accesible en un solo lugar.</li>
+            <li><strong>Cerrar sesión:</strong> botón "SALIR" en la esquina superior derecha del header.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <hr class="section-divider" />
+
+    <!-- ===== SECCIÓN 7: TABLA DE PERMISOS ===== -->
+    <section class="section" id="sec-roles">
+      <div class="section-header">
+        <div class="section-icon blue">🔐</div>
+        <div>
+          <h2 class="section-title">7. Tabla de Permisos por Rol</h2>
+          <p class="section-subtitle">Qué puede hacer cada tipo de usuario</p>
+        </div>
+      </div>
+
+      <div class="role-table-wrap">
+        <table class="role-table">
+          <thead>
+            <tr>
+              <th>Función / Acción</th>
+              <th><span class="role-badge stu">Estudiante</span></th>
+              <th><span class="role-badge auth">Autoridad</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Ver mapa con incidentes existentes</td>
+              <td><span class="check">✓</span></td>
+              <td><span class="check">✓</span></td>
+            </tr>
+            <tr>
+              <td>Reportar un nuevo incidente en el mapa</td>
+              <td><span class="check">✓</span></td>
+              <td><span class="cross">—</span></td>
+            </tr>
+            <tr>
+              <td>Ver banner de bienvenida personalizado</td>
+              <td><span class="check">✓</span></td>
+              <td><span class="cross">—</span></td>
+            </tr>
+            <tr>
+              <td>Ver estadísticas del dashboard (tarjetas)</td>
+              <td><span class="cross">—</span></td>
+              <td><span class="check">✓</span></td>
+            </tr>
+            <tr>
+              <td>Ver tabla completa de incidentes</td>
+              <td><span class="cross">—</span></td>
+              <td><span class="check">✓</span></td>
+            </tr>
+            <tr>
+              <td>Ver detalles completos de un incidente</td>
+              <td><span class="cross">—</span></td>
+              <td><span class="check">✓</span></td>
+            </tr>
+            <tr>
+              <td>Exportar reporte para Policía Nacional</td>
+              <td><span class="cross">—</span></td>
+              <td><span class="check">✓</span></td>
+            </tr>
+            <tr>
+              <td>Ver total de reportes, zonas críticas y último incidente</td>
+              <td><span class="cross">—</span></td>
+              <td><span class="check">✓</span></td>
+            </tr>
+            <tr>
+              <td>Cerrar sesión</td>
+              <td><span class="check">✓</span></td>
+              <td><span class="check">✓</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <hr class="section-divider" />
+
+    <!-- ===== SECCIÓN 8: FAQ ===== -->
+    <section class="section" id="sec-faq">
+      <div class="section-header">
+        <div class="section-icon amber">❓</div>
+        <div>
+          <h2 class="section-title">8. Preguntas Frecuentes</h2>
+          <p class="section-subtitle">Soluciones a los problemas más comunes</p>
+        </div>
+      </div>
+
+      <div class="faq-list">
+
+        <div class="faq-item">
+          <div class="faq-q">
+            <div class="faq-q-icon">Q</div>
+            <span>¿Qué hago si me aparece "Credenciales incorrectas"?</span>
+          </div>
+          <div class="faq-a">
+            Verifica que hayas escrito exactamente el correo y la contraseña que aparecen en la Sección 3. Recuerda que las contraseñas distinguen entre mayúsculas y minúsculas. Por ejemplo, <span class="tag">Estudiante123</span> tiene la "E" en mayúscula. Si el error persiste, recarga la página (F5) e intenta nuevamente.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q">
+            <div class="faq-q-icon">Q</div>
+            <span>¿Por qué no carga el mapa?</span>
+          </div>
+          <div class="faq-a">
+            El mapa requiere conexión a internet activa y es cargado desde los servidores de Leaflet/OpenStreetMap. Si el mapa aparece en gris o no carga, verifica tu conexión a internet y recarga la página. También puede ser que un bloqueador de anuncios o extensión del navegador esté interfiriendo — en ese caso, prueba en una ventana de incógnito.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q">
+            <div class="faq-q-icon">Q</div>
+            <span>Hice clic en el mapa pero no apareció el formulario de reporte, ¿qué pasó?</span>
+          </div>
+          <div class="faq-a">
+            Para que el formulario aparezca, primero debes activar el modo de selección presionando el botón rojo <span class="tag">REPORTAR INCIDENTE</span> del banner superior. Solo después de presionar ese botón el mapa acepta clics para registrar la ubicación del incidente.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q">
+            <div class="faq-q-icon">Q</div>
+            <span>¿Puedo usar el sistema desde mi celular?</span>
+          </div>
+          <div class="faq-a">
+            Sí. SafeCampus Monitor está optimizado para funcionar en dispositivos móviles. Abre el navegador Chrome o Safari en tu celular, escribe la URL del portal y el sistema se adapta automáticamente a la pantalla de tu dispositivo.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q">
+            <div class="faq-q-icon">Q</div>
+            <span>¿Qué significa cada nivel de severidad al reportar?</span>
+          </div>
+          <div class="faq-a">
+            <strong>Alta (Riesgo Crítico / Inmediato):</strong> Situación de peligro inmediato que requiere respuesta urgente. Por ejemplo: asalto en curso o acoso activo.<br />
+            <strong>Media (Riesgo Preventivo):</strong> Situación que puede volverse peligrosa. Por ejemplo: zona oscura o zona con historial de robos.<br />
+            <strong>Baja (Informativo):</strong> Observación de mejora de seguridad sin riesgo inmediato. Por ejemplo: un cerco dañado o una cámara apagada.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q">
+            <div class="faq-q-icon">Q</div>
+            <span>¿Cómo cierro sesión?</span>
+          </div>
+          <div class="faq-a">
+            En la barra superior (header rojo), en la esquina derecha, verás tu nombre y un botón que dice <span class="tag">SALIR</span> con un ícono de flecha. Al hacer clic, la sesión se cierra y eres redirigido a la pantalla de inicio de sesión.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q">
+            <div class="faq-q-icon">Q</div>
+            <span>¿Los reportes son anónimos?</span>
+          </div>
+          <div class="faq-a">
+            El sistema registra internamente el identificador del estudiante que reporta para evitar reportes falsos, pero las autoridades ven la información del incidente (tipo, ubicación, hora) sin mostrar el nombre del reportero en la tabla pública. La privacidad del estudiante está protegida en el flujo visible del panel.
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="doc-footer">
+    <div class="footer-inner">
+      <div>
+        <div class="footer-brand">SafeCampus Monitor <span>| Fe y Alegría</span></div>
+        <div class="footer-meta" style="margin-top:0.4rem;">Movimiento de Educación Popular Integral — Ecuador</div>
+      </div>
+      <div style="text-align:right;">
+        <div class="footer-meta">Manual de Acceso · Versión PMV2 · 2026</div>
+        <div class="footer-meta" style="margin-top:0.25rem;">Desarrollado con Vue.js 3 · Desplegado en Vercel</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==================== BOTÓN IMPRIMIR ==================== -->
+  <button class="print-btn no-print" onclick="window.print()">
+    🖨️ Imprimir / Guardar PDF
+  </button>
+
+</body>
+</html>

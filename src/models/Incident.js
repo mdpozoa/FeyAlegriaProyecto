@@ -1,5 +1,5 @@
 export class Incident {
-  constructor({ id, tipo, severidad, jornada, horaAprox, latitud, longitud, estado = 'Reportado' }) {
+  constructor({ id, tipo, severidad, jornada, horaAprox, latitud, longitud, descripcion, estado = 'Reportado' }) {
     this.id = id || crypto.randomUUID()
     this.tipo = tipo
     this.severidad = severidad // 'HIGH', 'MEDIUM', 'LOW'
@@ -7,6 +7,7 @@ export class Incident {
     this.horaAprox = horaAprox
     this.latitud = latitud
     this.longitud = longitud
+    this.descripcion = descripcion
     this.estado = estado
   }
 }

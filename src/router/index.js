@@ -1,5 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import { useAuthStore } from '../stores/authStore'
+import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
 import StudentView from '../views/StudentView.vue'
 import AuthorityView from '../views/AuthorityView.vue'
@@ -7,6 +8,11 @@ import AuthorityView from '../views/AuthorityView.vue'
 const router = createRouter({
   history: createWebHashHistory(),
   routes: [
+    {
+      path: '/',
+      name: 'home',
+      component: HomeView
+    },
     {
       path: '/login',
       name: 'login',
@@ -26,12 +32,8 @@ const router = createRouter({
       meta: { requiresAuth: true, role: 'AUTORIDAD' }
     },
     {
-      path: '/',
-      redirect: '/login'
-    },
-    {
       path: '/:pathMatch(.*)*',
-      redirect: '/login'
+      redirect: '/'
     }
   ]
 })

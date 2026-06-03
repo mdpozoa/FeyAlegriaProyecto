@@ -1,14 +1,19 @@
 <template>
   <div class="app-wrapper">
     <AppHeader />
-    <main class="main-content">
+    <main :class="['main-content', { 'full-width': isLandingPage }]">
       <router-view />
     </main>
   </div>
 </template>
 
 <script setup>
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
 import AppHeader from './components/AppHeader.vue'
+
+const route = useRoute()
+const isLandingPage = computed(() => route.name === 'home')
 </script>
 
 <style>
@@ -25,5 +30,12 @@ import AppHeader from './components/AppHeader.vue'
   max-width: 1200px;
   margin: 0 auto;
   width: 100%;
+  transition: all 0.3s ease;
+}
+
+.main-content.full-width {
+  padding: 0;
+  max-width: 100%;
+  margin: 0;
 }
 </style>

@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Práctica de Laboratorio – SAST, DAST e IAST | SafeCampus Monitor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --red:      #dc2626;
+      --red-d:    #b91c1c;
+      --red-l:    #fee2e2;
+      --red-xs:   #fef2f2;
+      --blue:     #2563eb;
+      --blue-l:   #dbeafe;
+      --green:    #16a34a;
+      --green-l:  #dcfce7;
+      --amber:    #d97706;
+      --amber-l:  #fef3c7;
+      --purple:   #7c3aed;
+      --purple-l: #ede9fe;
+      --slate-9:  #0f172a;
+      --slate-7:  #334155;
+      --slate-5:  #64748b;
+      --slate-3:  #cbd5e1;
+      --slate-1:  #f1f5f9;
+      --slate-0:  #f8fafc;
+      --white:    #ffffff;
+    }
+    html{scroll-behavior:smooth;font-size:15px}
+    body{font-family:'Inter',sans-serif;background:var(--slate-0);color:var(--slate-9);line-height:1.65}
+    @media print{
+      .no-print{display:none!important}
+      body{font-size:11pt;background:white}
+      .cover{background:#dc2626!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+      .phase-header{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+      .step-card,.tool-card,.finding-row{page-break-inside:avoid}
+    }
+
+    /* ── COVER ── */
+    .cover{
+      background:linear-gradient(145deg,#991b1b,var(--red),#ef4444);
+      color:var(--white);padding:3.5rem 2rem 4.5rem;position:relative;overflow:hidden
+    }
+    .cover::before{content:'';position:absolute;top:-100px;right:-100px;width:420px;height:420px;border-radius:50%;background:rgba(255,255,255,.06)}
+    .cover::after{content:'';position:absolute;bottom:-80px;left:-60px;width:300px;height:300px;border-radius:50%;background:rgba(255,255,255,.04)}
+    .cover-inner{max-width:860px;margin:0 auto;position:relative;z-index:1}
+    .cover-badge{display:inline-flex;align-items:center;gap:.4rem;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:9999px;padding:.3rem .9rem;font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:1.5rem}
+    .cover h1{font-size:2.2rem;font-weight:900;letter-spacing:-.035em;line-height:1.15;margin-bottom:.75rem}
+    .cover h1 span{opacity:.75;font-weight:400}
+    .cover-sub{font-size:1.05rem;opacity:.85;font-weight:400;margin-bottom:2rem}
+    .cover-meta{display:flex;flex-wrap:wrap;gap:2rem;padding-top:1.75rem;border-top:1px solid rgba(255,255,255,.2)}
+    .meta-block .label{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;opacity:.6;margin-bottom:.2rem}
+    .meta-block .val{font-size:.88rem;font-weight:600}
+
+    /* ── LAYOUT ── */
+    .page{max-width:860px;margin:0 auto;padding:0 1.5rem 4rem}
+
+    /* ── TOC ── */
+    .toc-wrap{margin:-2rem auto 0;padding:0 1.5rem;max-width:860px;position:relative;z-index:10}
+    .toc-card{background:var(--white);border-radius:14px;box-shadow:0 8px 30px rgba(15,23,42,.1);padding:1.75rem;margin-bottom:2.5rem}
+    .toc-label{font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--slate-5);margin-bottom:1rem}
+    .toc-phases{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.5rem}
+    .toc-item{display:flex;align-items:center;gap:.65rem;padding:.6rem .8rem;border-radius:8px;text-decoration:none;color:var(--slate-7);font-size:.82rem;font-weight:500;border:1px solid transparent;transition:all .2s}
+    .toc-item:hover{background:var(--red-xs);border-color:var(--red-l);color:var(--red)}
+    .toc-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+    .dot-sast{background:#2563eb}.dot-dast{background:#dc2626}.dot-iast{background:#7c3aed}.dot-comp{background:#16a34a}.dot-table{background:#d97706}
+
+    /* ── SECTION HEADINGS ── */
+    .section{margin-bottom:2.75rem}
+    .section-h{display:flex;align-items:center;gap:.9rem;margin:2.5rem 0 1.5rem;padding-bottom:.9rem;border-bottom:2px solid var(--slate-1)}
+    .section-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
+    .si-blue{background:var(--blue-l)}.si-red{background:var(--red-l)}.si-purple{background:var(--purple-l)}.si-green{background:var(--green-l)}.si-amber{background:var(--amber-l)}.si-slate{background:var(--slate-1)}
+    .section-h h2{font-size:1.35rem;font-weight:800;letter-spacing:-.02em;color:var(--slate-9)}
+    .section-h small{display:block;font-size:.78rem;color:var(--slate-5);font-weight:400;margin-top:.15rem}
+
+    /* ── PHASE HEADER BANNER ── */
+    .phase-header{border-radius:14px;padding:1.5rem 1.75rem;margin-bottom:1.5rem;color:var(--white)}
+    .ph-sast{background:linear-gradient(135deg,#1e40af,var(--blue))}
+    .ph-dast{background:linear-gradient(135deg,var(--red-d),var(--red))}
+    .ph-iast{background:linear-gradient(135deg,#5b21b6,var(--purple))}
+    .ph-comp{background:linear-gradient(135deg,#14532d,var(--green))}
+    .phase-header h3{font-size:1.2rem;font-weight:800;letter-spacing:-.02em;margin-bottom:.35rem}
+    .phase-header p{font-size:.83rem;opacity:.88;line-height:1.5}
+    .phase-badge{display:inline-block;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.25);border-radius:9999px;font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:.2rem .65rem;margin-bottom:.65rem}
+
+    /* ── TOOL CARD ── */
+    .tool-card{background:var(--white);border:1px solid var(--slate-3);border-radius:12px;overflow:hidden;margin-bottom:1rem;transition:box-shadow .25s}
+    .tool-card:hover{box-shadow:0 6px 20px rgba(15,23,42,.08)}
+    .tool-head{display:flex;align-items:center;gap:.85rem;padding:1rem 1.25rem;border-bottom:1px solid var(--slate-1)}
+    .tool-emoji{font-size:1.4rem}
+    .tool-name{font-size:.95rem;font-weight:700;color:var(--slate-9)}
+    .tool-type{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:.15rem .5rem;border-radius:9999px;display:inline-block;margin-top:.2rem}
+    .tt-free{background:var(--green-l);color:var(--green)}.tt-cli{background:var(--blue-l);color:var(--blue)}.tt-gui{background:var(--purple-l);color:var(--purple)}.tt-ext{background:var(--amber-l);color:var(--amber)}
+    .tool-body{padding:1.25rem}
+
+    /* ── STEP CARD ── */
+    .steps-wrap{display:flex;flex-direction:column;gap:0}
+    .step-card{display:flex;gap:1rem;position:relative}
+    .step-card:not(:last-child)::after{content:'';position:absolute;left:17px;top:38px;bottom:0;width:2px;background:var(--slate-1)}
+    .step-num-wrap{flex-shrink:0;padding-top:.15rem}
+    .step-num{width:36px;height:36px;border-radius:50%;color:var(--white);font-size:.8rem;font-weight:800;display:flex;align-items:center;justify-content:center;position:relative;z-index:1;box-shadow:0 3px 10px rgba(0,0,0,.18)}
+    .sn-blue{background:var(--blue)}.sn-red{background:var(--red)}.sn-purple{background:var(--purple)}.sn-green{background:var(--green)}
+    .step-body{padding-bottom:1.75rem;flex:1}
+    .step-title{font-size:.95rem;font-weight:700;color:var(--slate-9);margin-bottom:.4rem}
+    .step-desc{font-size:.855rem;color:var(--slate-5);line-height:1.6}
+
+    /* ── CODE BLOCK ── */
+    .code-block{background:var(--slate-9);color:#86efac;border-radius:10px;padding:1rem 1.25rem;font-family:'JetBrains Mono',monospace;font-size:.8rem;line-height:1.7;margin:.75rem 0;overflow-x:auto;position:relative}
+    .code-block .comment{color:#475569}
+    .code-block .cmd{color:#fde68a}
+    .code-block .path{color:#93c5fd}
+    .code-block .flag{color:#f9a8d4}
+    .code-label{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--slate-5);margin-bottom:.35rem;margin-top:.9rem}
+
+    /* ── CALLOUT ── */
+    .callout{display:flex;gap:.85rem;padding:.9rem 1.1rem;border-radius:10px;margin:.9rem 0;align-items:flex-start}
+    .callout.info{background:var(--blue-l);border-left:4px solid var(--blue)}
+    .callout.warn{background:var(--amber-l);border-left:4px solid var(--amber)}
+    .callout.danger{background:var(--red-xs);border-left:4px solid var(--red)}
+    .callout.ok{background:var(--green-l);border-left:4px solid var(--green)}
+    .callout.purple{background:var(--purple-l);border-left:4px solid var(--purple)}
+    .callout-icon{font-size:1rem;flex-shrink:0;margin-top:.1rem}
+    .callout-text{font-size:.83rem;line-height:1.55;color:var(--slate-7)}
+    .callout-text strong{display:block;margin-bottom:.2rem;color:var(--slate-9)}
+
+    /* ── FINDING TABLE ── */
+    .findings-title{font-size:.95rem;font-weight:700;color:var(--slate-9);margin-bottom:.75rem;margin-top:1.5rem}
+    .findings-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--slate-3)}
+    .findings-table{width:100%;border-collapse:collapse;font-size:.82rem}
+    .findings-table thead th{background:var(--slate-9);color:var(--white);padding:.7rem 1rem;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;text-align:left}
+    .findings-table tbody td{padding:.8rem 1rem;border-bottom:1px solid var(--slate-1);color:var(--slate-7);vertical-align:top}
+    .findings-table tbody tr:last-child td{border-bottom:none}
+    .findings-table tbody tr:hover td{background:var(--slate-0)}
+    .sev{display:inline-block;padding:.15rem .5rem;border-radius:9999px;font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.03em}
+    .sev.high{background:var(--red-l);color:var(--red)}.sev.med{background:var(--amber-l);color:var(--amber)}.sev.low{background:var(--green-l);color:var(--green)}.sev.info{background:var(--blue-l);color:var(--blue)}
+
+    /* ── COMPARE TABLE ── */
+    .cmp-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--slate-3);margin-top:1.25rem}
+    .cmp-table{width:100%;border-collapse:collapse;font-size:.83rem}
+    .cmp-table thead th{padding:.85rem 1.1rem;font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;text-align:left}
+    .cmp-table thead th:first-child{background:var(--slate-9);color:var(--white)}
+    .cmp-table thead th.h-sast{background:var(--blue);color:var(--white)}
+    .cmp-table thead th.h-dast{background:var(--red);color:var(--white)}
+    .cmp-table thead th.h-iast{background:var(--purple);color:var(--white)}
+    .cmp-table tbody td{padding:.85rem 1.1rem;border-bottom:1px solid var(--slate-1);vertical-align:top;color:var(--slate-7)}
+    .cmp-table tbody td:first-child{font-weight:700;color:var(--slate-9);background:var(--slate-0)}
+    .cmp-table tbody tr:last-child td{border-bottom:none}
+    .cmp-table tbody tr:hover td{filter:brightness(.97)}
+    .ck{color:var(--green);font-weight:700}.cx{color:#94a3b8}.cp{color:var(--amber);font-weight:700}
+
+    /* ── BROWSER GUIDE ── */
+    .browser-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem}
+    .browser-card{background:var(--white);border:1px solid var(--slate-3);border-radius:12px;padding:1.25rem;text-align:center;transition:all .25s}
+    .browser-card:hover{box-shadow:0 6px 20px rgba(15,23,42,.08);transform:translateY(-2px)}
+    .browser-card.recommended{border-color:var(--green);box-shadow:0 0 0 3px rgba(22,163,74,.12)}
+    .browser-emoji{font-size:2.2rem;margin-bottom:.6rem;display:block}
+    .browser-name{font-weight:700;font-size:.9rem;color:var(--slate-9);margin-bottom:.35rem}
+    .browser-note{font-size:.75rem;color:var(--slate-5);line-height:1.45}
+    .rec-badge{background:var(--green-l);color:var(--green);font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:.2rem .6rem;border-radius:9999px;display:inline-block;margin-bottom:.5rem}
+
+    /* ── MISC ── */
+    p{font-size:.88rem;color:var(--slate-7);line-height:1.7;margin-bottom:.75rem}
+    strong{color:var(--slate-9)}
+    ul.dots{list-style:none;padding:0;display:flex;flex-direction:column;gap:.5rem;margin-bottom:.75rem}
+    ul.dots li{display:flex;align-items:flex-start;gap:.6rem;font-size:.855rem;color:var(--slate-7)}
+    ul.dots li::before{content:'→';color:var(--red);font-weight:700;flex-shrink:0;margin-top:.05rem}
+    .pill{display:inline-block;padding:.15rem .55rem;border-radius:6px;font-size:.78rem;font-weight:600;font-family:'JetBrains Mono',monospace}
+    .pill-r{background:var(--red-xs);color:var(--red)}.pill-b{background:var(--blue-l);color:var(--blue)}.pill-g{background:var(--green-l);color:var(--green)}.pill-s{background:var(--slate-1);color:var(--slate-7)}
+    .highlight-box{background:var(--white);border:1px solid var(--slate-3);border-radius:10px;padding:1.1rem 1.25rem;margin:.75rem 0;font-size:.855rem;color:var(--slate-7)}
+    hr.div{border:none;border-top:1px solid var(--slate-1);margin:2rem 0}
+    .print-btn{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--red);color:var(--white);border:none;border-radius:9999px;padding:.65rem 1.35rem;font-family:'Inter',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:.45rem;box-shadow:0 6px 20px rgba(220,38,38,.35);transition:all .25s;z-index:100}
+    .print-btn:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(220,38,38,.45)}
+    @media(max-width:640px){.cover h1{font-size:1.6rem}.toc-wrap,.page{padding:0 1rem}.browser-grid{grid-template-columns:1fr 1fr}.cover-meta{gap:1rem}}
+  </style>
+</head>
+<body>
+
+<!-- ═══════════ PORTADA ═══════════ -->
+<div class="cover">
+  <div class="cover-inner">
+    <div class="cover-badge">🔬 Práctica de Laboratorio · Seguridad de Software</div>
+    <h1>Análisis Comparativo de<br/><span>SAST, DAST e IAST</span></h1>
+    <p class="cover-sub">Aplicado al proyecto <strong>SafeCampus Monitor</strong> — Fe y Alegría Ecuador</p>
+    <div class="cover-meta">
+      <div class="meta-block"><div class="label">Proyecto bajo análisis</div><div class="val">SafeCampus Monitor v1.0 (PMV2)</div></div>
+      <div class="meta-block"><div class="label">Stack tecnológico</div><div class="val">Vue.js 3 · Vite · Node.js · SQLite · Vercel</div></div>
+      <div class="meta-block"><div class="label">Equipo</div><div class="val">Mateo Pozo · Diego Cevallos</div></div>
+      <div class="meta-block"><div class="label">Año</div><div class="val">2026</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ ÍNDICE ═══════════ -->
+<div class="toc-wrap">
+  <div class="toc-card">
+    <p class="toc-label">📑 Contenido de la Práctica</p>
+    <div class="toc-phases">
+      <a href="#intro"    class="toc-item"><span class="toc-dot dot-comp"></span>Introducción y Conceptos</a>
+      <a href="#browser"  class="toc-item"><span class="toc-dot dot-table"></span>Navegador y Entorno</a>
+      <a href="#sast"     class="toc-item"><span class="toc-dot dot-sast"></span>Fase 1 — SAST</a>
+      <a href="#dast"     class="toc-item"><span class="toc-dot dot-dast"></span>Fase 2 — DAST</a>
+      <a href="#iast"     class="toc-item"><span class="toc-dot dot-iast"></span>Fase 3 — IAST</a>
+      <a href="#compare"  class="toc-item"><span class="toc-dot dot-comp"></span>Comparativa Final</a>
+      <a href="#tabla"    class="toc-item"><span class="toc-dot dot-table"></span>Tabla de Hallazgos</a>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ CONTENIDO ═══════════ -->
+<main class="page">
+
+  <!-- ── INTRODUCCIÓN ── -->
+  <section class="section" id="intro">
+    <div class="section-h">
+      <div class="section-icon si-slate">📖</div>
+      <div><h2>Introducción y Marco Conceptual</h2><small>¿Qué es cada técnica y cuándo se usa?</small></div>
+    </div>
+
+    <p>Esta práctica aplica tres metodologías de análisis de seguridad sobre el proyecto <strong>SafeCampus Monitor</strong>: una aplicación web con frontend en <strong>Vue.js 3</strong>, backend en <strong>Node.js + Express</strong> y base de datos <strong>SQLite</strong>, desplegada en Vercel.</p>
+
+    <div class="cmp-wrap">
+      <table class="cmp-table">
+        <thead>
+          <tr>
+            <th style="min-width:140px">Técnica</th>
+            <th class="h-sast">SAST — Estático</th>
+            <th class="h-dast">DAST — Dinámico</th>
+            <th class="h-iast">IAST — Interactivo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>¿Qué analiza?</td><td>El <strong>código fuente</strong> sin ejecutarlo</td><td>La aplicación <strong>en ejecución</strong> desde afuera</td><td>La aplicación por <strong>dentro</strong> durante la ejecución</td></tr>
+          <tr><td>¿Cuándo actúa?</td><td>Antes de compilar o desplegar</td><td>Cuando la app ya está corriendo</td><td>Mientras el QA/usuario navega la app</td></tr>
+          <tr><td>¿Quién lo hace?</td><td>El desarrollador desde el IDE</td><td>Un escáner externo (proxy/bot)</td><td>Un agente instrumentado en el runtime</td></tr>
+          <tr><td>Ventaja clave</td><td>Detecta errores de programación temprano</td><td>Encuentra vulnerabilidades reales en producción</td><td>Combina precisión de SAST con contexto de DAST</td></tr>
+          <tr><td>Limitación</td><td>No ve errores de runtime</td><td>Puede dar falsos positivos, no ve el código</td><td>Requiere agentes en el servidor (más complejo)</td></tr>
+          <tr><td>Herramienta usada</td><td>npm audit + Semgrep + ESLint</td><td>OWASP ZAP + DevTools Chrome</td><td>Contrast CE + DevTools Network Inspector</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout ok" style="margin-top:1.25rem">
+      <span class="callout-icon">🎯</span>
+      <div class="callout-text"><strong>Objetivo de la práctica</strong>Ejecutar las tres fases sobre SafeCampus Monitor, documentar los hallazgos de cada técnica, comparar sus resultados y redactar conclusiones sobre las vulnerabilidades encontradas y su remediación.</div>
+    </div>
+  </section>
+
+  <hr class="div"/>
+
+  <!-- ── NAVEGADOR Y ENTORNO ── -->
+  <section class="section" id="browser">
+    <div class="section-h">
+      <div class="section-icon si-amber">🌐</div>
+      <div><h2>Navegador y Entorno Requerido</h2><small>Configura tu espacio de trabajo antes de comenzar</small></div>
+    </div>
+
+    <p>Antes de iniciar cualquier fase, asegúrate de tener el entorno correcto. Cada técnica requiere herramientas específicas.</p>
+
+    <p style="font-weight:700;margin-bottom:.75rem">🖥️ Navegador recomendado:</p>
+    <div class="browser-grid">
+
+      <div class="browser-card recommended">
+        <span class="browser-emoji">🟢</span>
+        <div class="rec-badge">✓ Recomendado Principal</div>
+        <div class="browser-name">Google Chrome</div>
+        <div class="browser-note">Tiene las DevTools más completas: Network, Security, Application (LocalStorage), Console y Lighthouse. Compatible con todas las extensiones de seguridad. Usa este para la mayoría de la práctica.</div>
+      </div>
+
+      <div class="browser-card">
+        <span class="browser-emoji">🦊</span>
+        <div class="browser-name">Mozilla Firefox</div>
+        <div class="browser-note">Excelente para DAST con OWASP ZAP porque configura el proxy más fácilmente. Usa Firefox cuando configures ZAP como proxy de interceptación.</div>
+      </div>
+
+      <div class="browser-card">
+        <span class="browser-emoji">🔵</span>
+        <div class="browser-name">MS Edge</div>
+        <div class="browser-note">Alternativa a Chrome si no tienes acceso. Mismo motor Chromium, DevTools equivalentes. Sirve como respaldo.</div>
+      </div>
+
+    </div>
+
+    <div class="callout warn" style="margin-top:1.25rem">
+      <span class="callout-icon">⚠️</span>
+      <div class="callout-text"><strong>No usar para las pruebas de seguridad:</strong> Internet Explorer, Safari o navegadores integrados en IDEs. No tienen las herramientas necesarias para interceptar tráfico ni inspeccionar correctamente las peticiones HTTP.</div>
+    </div>
+
+    <p style="font-weight:700;margin:.1.25rem 0 .75rem">🛠️ Software que debes instalar antes de empezar:</p>
+    <div class="highlight-box">
+      <ul class="dots">
+        <li><strong>Node.js LTS (v20+)</strong> — <span class="pill pill-b">nodejs.org</span> — Para ejecutar npm audit, instalar dependencias y levantar el servidor local.</li>
+        <li><strong>OWASP ZAP 2.15+</strong> — <span class="pill pill-b">zaproxy.org</span> — Herramienta DAST gratuita con interfaz gráfica. La más usada en la industria para pruebas de penetración web.</li>
+        <li><strong>Semgrep CLI</strong> — <span class="pill pill-b">semgrep.dev</span> — Analizador estático de código fuente con reglas de seguridad para JavaScript/Vue.js.</li>
+        <li><strong>Git Bash o PowerShell</strong> — Para ejecutar comandos en la terminal.</li>
+        <li><strong>Extensión Chrome: "EditThisCookie"</strong> — Para manipular cookies durante DAST manual.</li>
+        <li><strong>Extensión Chrome: "FoxyProxy"</strong> — Para enrutar el tráfico a través de ZAP sin cambiar la configuración del sistema.</li>
+      </ul>
+    </div>
+  </section>
+
+  <hr class="div"/>
+
+  <!-- ══════════════════════════════════════
+       FASE 1 — SAST
+  ══════════════════════════════════════ -->
+  <section class="section" id="sast">
+    <div class="phase-header ph-sast">
+      <div class="phase-badge">Fase 1</div>
+      <h3>🔵 SAST — Static Application Security Testing</h3>
+      <p>Análisis del código fuente de SafeCampus Monitor sin ejecutar la aplicación. Usaremos tres herramientas complementarias: <strong>npm audit</strong>, <strong>Semgrep</strong> y <strong>ESLint Security Plugin</strong>.</p>
+    </div>
+
+    <!-- Herramienta 1 -->
+    <div class="tool-card">
+      <div class="tool-head">
+        <span class="tool-emoji">📦</span>
+        <div>
+          <div class="tool-name">Herramienta 1 — npm audit</div>
+          <span class="tool-type tt-free">Gratuito</span>
+          <span class="tool-type tt-cli">CLI</span>
+        </div>
+      </div>
+      <div class="tool-body">
+        <p><strong>npm audit</strong> analiza el archivo <span class="pill pill-s">package.json</span> y el árbol de dependencias buscando vulnerabilidades conocidas registradas en la base de datos pública del NIST (CVE).</p>
+
+        <div class="steps-wrap">
+          <div class="step-card">
+            <div class="step-num-wrap"><div class="step-num sn-blue">1</div></div>
+            <div class="step-body">
+              <div class="step-title">Abre la terminal en la carpeta del proyecto</div>
+              <div class="step-desc">En Windows, haz clic derecho sobre la carpeta <span class="pill pill-s">EmprendimientoProyectoFull</span> y selecciona "Abrir en Terminal" o usa PowerShell.</div>
+              <div class="code-label">Terminal</div>
+              <div class="code-block"><span class="comment"># Navega a la carpeta raíz del proyecto</span>
+<span class="cmd">cd</span> <span class="path">"C:\Users\mateo\OneDrive - Pontificia Universidad Católica del Ecuador\Desktop\EmprendimientoProyectoFull"</span></div>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-num-wrap"><div class="step-num sn-blue">2</div></div>
+            <div class="step-body">
+              <div class="step-title">Ejecuta npm audit para el frontend</div>
+              <div class="step-desc">Este comando escanea las dependencias del frontend (Vue, Vite, Leaflet, Pinia, vue-router) y muestra vulnerabilidades por severidad.</div>
+              <div class="code-label">Terminal</div>
+              <div class="code-block"><span class="cmd">npm audit</span>
+<span class="comment"># Para ver el reporte completo en formato JSON (más detallado):</span>
+<span class="cmd">npm audit</span> <span class="flag">--json</span> > <span class="path">sast_npm_audit_report.json</span></div>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-num-wrap"><div class="step-num sn-blue">3</div></div>
+            <div class="step-body">
+              <div class="step-title">Analiza los paquetes del servidor (backend)</div>
+              <div class="step-desc">El directorio <span class="pill pill-s">server/</span> tiene su propio set de dependencias (Express, CORS, SQLite). Analízalas por separado.</div>
+              <div class="code-label">Terminal</div>
+              <div class="code-block"><span class="comment"># Si hay un package.json en /server, entra a esa carpeta primero:</span>
+<span class="cmd">npm audit</span> <span class="flag">--prefix</span> <span class="path">./server</span>
+
+<span class="comment"># Si no tiene su propio package.json, instala las deps del servidor:</span>
+<span class="cmd">npm install</span> express cors better-sqlite3
+<span class="cmd">npm audit</span></div>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-num-wrap"><div class="step-num sn-blue">4</div></div>
+            <div class="step-body">
+              <div class="step-title">Documenta los hallazgos en la tabla de resultados</div>
+              <div class="step-desc">Copia la salida del comando. Busca líneas que digan <span class="pill pill-r">HIGH</span>, <span class="pill pill-s">MODERATE</span> o <span class="pill pill-g">LOW</span>. Apunta: nombre del paquete, versión vulnerable, CVE y solución.</div>
+
+              <div class="callout ok">
+                <span class="callout-icon">✅</span>
+                <div class="callout-text"><strong>Qué buscar en la salida:</strong> líneas como <code>"found N vulnerabilities (X moderate, Y high)"</code>. Si dice <code>"found 0 vulnerabilities"</code>, es un hallazgo positivo: ¡documenta que las dependencias están actualizadas!</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Herramienta 2 -->
+    <div class="tool-card">
+      <div class="tool-head">
+        <span class="tool-emoji">🔍</span>
+        <div>
+          <div class="tool-name">Herramienta 2 — Semgrep (Análisis de Código Fuente)</div>
+          <span class="tool-type tt-free">Gratuito</span>
+          <span class="tool-type tt-cli">CLI</span>
+        </div>
+      </div>
+      <div class="tool-body">
+        <p><strong>Semgrep</strong> analiza el código fuente línea por línea usando patrones de seguridad predefinidos. Detecta problemas como: inyección de datos, uso inseguro de eval(), manejo incorrecto de tokens, secretos expuestos en el código, etc.</p>
+
+        <div class="callout info">
+          <span class="callout-icon">ℹ️</span>
+          <div class="callout-text"><strong>Instalación de Semgrep:</strong> Requiere Python 3.8+. Si no tienes Python, descarga el ejecutable standalone desde <code>semgrep.dev/docs/getting-started</code></div>
+        </div>
+
+        <div class="steps-wrap">
+          <div class="step-card">
+            <div class="step-num-wrap"><div class="step-num sn-blue">1</div></div>
+            <div class="step-body">
+              <div class="step-title">Instala Semgrep</div>
+              <div class="code-label">PowerShell / Terminal</div>
+              <div class="code-block"><span class="comment"># Opción 1: Con pip (Python requerido)</span>
+pip install semgrep
+
+<span class="comment"># Opción 2: Con winget (Windows Package Manager)</span>
+winget install Semgrep.Semgrep
+
+<span class="comment"># Verifica instalación:</span>
+semgrep <span class="flag">--version</span></div>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-num-wrap"><div class="step-num sn-blue">2</div></div>
+            <div class="step-body">
+              <div class="step-title">Ejecuta el análisis SAST sobre el directorio src/</div>
+              <div class="step-desc">Usa el conjunto de reglas oficiales de seguridad para JavaScript. Analiza todos los archivos <span class="pill pill-s">.js</span> y <span class="pill pill-s">.vue</span> del proyecto.</div>
+              <div class="code-label">Terminal</div>
+              <div class="code-block"><span class="comment"># Análisis con reglas de seguridad para JavaScript</span>
+semgrep <span class="flag">--config</span> <span class="path">p/javascript</span> <span class="path">./src</span>
+
+<span class="comment"># Análisis con reglas específicas de OWASP Top 10</span>
+semgrep <span class="flag">--config</span> <span class="path">p/owasp-top-ten</span> <span class="path">./src</span>
+
+<span class="comment"># Análisis del servidor backend (Node.js)</span>
+semgrep <span class="flag">--config</span> <span class="path">p/nodejs</span> <span class="path">./server</span>
+
+<span class="comment"># Guardar reporte completo en JSON</span>
+semgrep <span class="flag">--config</span> <span class="path">p/javascript</span> <span class="path">./src</span> <span class="flag">--json</span> > <span class="path">sast_semgrep_report.json</span></div>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-num-wrap"><div class="step-num sn-blue">3</div></div>
+            <div class="step-body">
+              <div class="step-title">Analiza hallazgos específicos de SafeCampus</div>
+              <div class="step-desc">Semgrep revisará patrones peligrosos en tu código. Presta atención a estos archivos críticos del proyecto:</div>
+              <div class="highlight-box">
+                <ul class="dots">
+                  <li><span class="pill pill-s">server/index.js</span> — Verifica si las rutas de la API validan correctamente los datos de entrada (SQL Injection, missing auth).</li>
+                  <li><span class="pill pill-s">src/stores/authStore.js</span> — Revisa si el token JWT simulado se almacena de forma segura y si hay credenciales hardcodeadas.</li>
+                  <li><span class="pill pill-s">src/controllers/IncidentController.js</span> — Chequea si las coordenadas y datos del incidente se sanitizan antes de enviarse.</li>
+                  <li><span class="pill pill-s">src/views/StudentView.vue</span> — Verifica si los datos del formulario se escapan correctamente antes de renderizarse (XSS).</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-num-wrap"><div class="step-num sn-blue">4</div></div>
+            <div class="step-body">
+              <div class="step-title">Hallazgo esperado crítico — Credenciales Hardcodeadas</div>
+              <div class="step-desc">Semgrep detectará que en <span class="pill pill-s">authStore.js</span> y en <span class="pill pill-s">server/index.js</span> las contraseñas están escritas directamente en el código. Esto es una vulnerabilidad de tipo <strong>A07:2021 – Identification and Authentication Failures</strong> según OWASP.</div>
+              <div class="callout danger">
+                <span class="callout-icon">🚨</span>
+                <div class="callout-text"><strong>Vulnerabilidad detectada (SAST):</strong> Credenciales en texto plano dentro del código fuente. Líneas <code>password === 'Estudiante123'</code> y <code>password === 'AdminSeguridad123'</code> son comparaciones directas sin hashing (bcrypt/argon2). En producción, esto debe usarse con <code>bcrypt.compare()</code>.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Herramienta 3 -->
+    <div class="tool-card">
+      <div class="tool-head">
+        <span class="tool-emoji">✏️</span>
+        <div>
+          <div class="tool-name">Herramienta 3 — ESLint con Plugin de Seguridad</div>
+          <span class="tool-type tt-free">Gratuito</span>
+          <span class="tool-type tt-cli">CLI</span>
+        </div>
+      </div>
+      <div class="tool-body">
+        <p>ESLint es el linter estándar de JavaScript. El plugin <strong>eslint-plugin-security</strong> agrega reglas específicas para detectar vulnerabilidades comunes en JavaScript.</p>
+
+        <div class="steps-wrap">
+          <div class="step-card">
+            <div class="step-num-wrap"><div class="step-num sn-blue">1</div></div>
+            <div class="step-body">
+              <div class="step-title">Instala ESLint y el plugin de seguridad</div>
+              <div class="code-label">Terminal</div>
+              <div class="code-block">npm install <span class="flag">--save-dev</span> eslint eslint-plugin-security eslint-plugin-vue</div>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-num-wrap"><div class="step-num sn-blue">2</div></div>
+            <div class="step-body">
+              <div class="step-title">Crea el archivo de configuración .eslintrc.json</div>
+              <div class="step-desc">Crea este archivo en la raíz del proyecto:</div>
+              <div class="code-label">Archivo: .eslintrc.json</div>
+              <div class="code-block">{
+  <span class="flag">"env"</span>: { <span class="path">"browser"</span>: true, <span class="path">"es2021"</span>: true, <span class="path">"node"</span>: true },
+  <span class="flag">"plugins"</span>: [<span class="path">"security"</span>, <span class="path">"vue"</span>],
+  <span class="flag">"extends"</span>: [
+    <span class="path">"plugin:security/recommended"</span>,
+    <span class="path">"plugin:vue/vue3-recommended"</span>
+  ],
+  <span class="flag">"rules"</span>: {
+    <span class="path">"security/detect-object-injection"</span>: <span class="path">"warn"</span>,
+    <span class="path">"security/detect-non-literal-regexp"</span>: <span class="path">"warn"</span>,
+    <span class="path">"security/detect-possible-timing-attacks"</span>: <span class="path">"error"</span>,
+    <span class="path">"security/detect-unsafe-regex"</span>: <span class="path">"error"</span>
+  }
+}</div>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-num-wrap"><div class="step-num sn-blue">3</div></div>
+            <div class="step-body">
+              <div class="step-title">Ejecuta el análisis</div>
+              <div class="code-label">Terminal</div>
+              <div class="code-block"><span class="comment"># Analiza toda la carpeta src/</span>
+npx eslint <span class="path">./src</span> <span class="flag">--ext</span> .js,.vue
+
+<span class="comment"># Analiza el servidor</span>
+npx eslint <span class="path">./server</span> <span class="flag">--ext</span> .js
+
+<span class="comment"># Guarda el reporte</span>
+npx eslint <span class="path">./src</span> <span class="flag">-f</span> json > <span class="path">sast_eslint_report.json</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="findings-title">📋 Tabla de Hallazgos SAST — Completa aquí los resultados</div>
+    <div class="findings-wrap">
+      <table class="findings-table">
+        <thead>
+          <tr><th>Herramienta</th><th>Archivo</th><th>Línea</th><th>Vulnerabilidad</th><th>Severidad</th><th>OWASP</th><th>Remediación</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>npm audit</td><td>package.json</td><td>—</td><td>Dependencia con CVE (si existe)</td><td><span class="sev med">Media</span></td><td>A06:2021</td><td>Ejecutar <code>npm audit fix</code></td></tr>
+          <tr><td>Semgrep</td><td>server/index.js</td><td>41-43</td><td>Contraseñas hardcodeadas en código fuente</td><td><span class="sev high">Alta</span></td><td>A07:2021</td><td>Usar variables de entorno (.env) y bcrypt</td></tr>
+          <tr><td>Semgrep</td><td>server/index.js</td><td>47</td><td>Token JWT simulado sin firma real</td><td><span class="sev high">Alta</span></td><td>A02:2021</td><td>Implementar jsonwebtoken con secret real</td></tr>
+          <tr><td>Semgrep</td><td>server/index.js</td><td>8</td><td>CORS habilitado sin restricción de origen</td><td><span class="sev med">Media</span></td><td>A05:2021</td><td>Definir <code>origin: ['https://tu-dominio.vercel.app']</code></td></tr>
+          <tr><td>ESLint</td><td>src/stores/authStore.js</td><td>25-55</td><td>Comparación de strings sin timing-safe</td><td><span class="sev med">Media</span></td><td>A07:2021</td><td>Usar <code>crypto.timingSafeEqual()</code></td></tr>
+          <tr><td>ESLint</td><td>src/controllers/IncidentController.js</td><td>3</td><td>URL de API expuesta en código fuente</td><td><span class="sev low">Baja</span></td><td>A05:2021</td><td>Mover a variable de entorno <code>VITE_API_URL</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <hr class="div"/>
+
+  <!-- ══════════════════════════════════════
+       FASE 2 — DAST
+  ══════════════════════════════════════ -->
+  <section class="section" id="dast">
+    <div class="phase-header ph-dast">
+      <div class="phase-badge">Fase 2</div>
+      <h3>🔴 DAST — Dynamic Application Security Testing</h3>
+      <p>Análisis de la aplicación en tiempo de ejecución. Levantaremos el servidor local y usaremos <strong>OWASP ZAP</strong> para interceptar, analizar y atacar la aplicación como lo haría un atacante externo.</p>
+    </div>
+
+    <div class="callout warn">
+      <span class="callout-icon">⚠️</span>
+      <div class="callout-text"><strong>Importante antes de empezar DAST:</strong> Debes tener la aplicación corriendo localmente. Nunca ejecutes pruebas DAST contra el servidor de producción (Vercel) sin autorización explícita. Usa siempre <code>http://localhost:5173</code> para estas pruebas.</div>
+    </div>
+
+    <!-- Tool ZAP -->
+    <div class="tool-card">
+      <div class="tool-head">
+        <span class="tool-emoji">⚡</span>
+        <div>
+          <div class="tool-name">Herramienta Principal — OWASP ZAP 2.15</div>
+          <span class="tool-type tt-free">Gratuito y Open Source</span>
+          <span class="tool-type tt-gui">Interfaz Gráfica</span>
+        </div>
+      </div>
+      <div class="tool-body">
+        <p>OWASP ZAP (Zed Attack Proxy) es la herramienta DAST más usada en la industria. Funciona como un proxy entre el navegador y el servidor, interceptando y analizando todo el tráfico HTTP/HTTPS.</p>
+
+        <div class="steps-wrap">
+
+          <div class="step-card">
+            <div class="step-num-wrap"><div class="step-num sn-red">1</div></div>
+            <div class="step-body">
+              <div class="step-title">Levanta la aplicación SafeCampus localmente</div>
+              <div class="step-desc">Abre <strong>dos terminales separadas</strong>: una para el frontend (Vite) y otra para el backend (Express + SQLite).</div>
+              <div class="code-label">Terminal 1 — Frontend (Vue.js)</div>
+              <div class="code-block"><span class="cmd">npm run dev</span>
+<span class="comment"># La app estará en: http://localhost:5173</span></div>
+              <div class="code-label">Terminal 2 — Backend (Node.js)</div>
+              <div class="code-block"><span class="cmd">node</span> <span class="path">server/index.js</span>
+<span class="comment"># El servidor API estará en: http://localhost:3000</span></div>
+              <div class="callout ok"><span class="callout-icon">✅</span><div class="callout-text">Verifica que puedas abrir <code>http://localhost:5173</code> en Chrome y ver la pantalla de login de SafeCampus antes de continuar.</div></div>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-num-wrap"><div class="step-num sn-red">2</div></div>
+            <div class="step-body">
+              <div class="step-title">Descarga e instala OWASP ZAP</div>
+              <div class="step-desc">Ve a <strong>zaproxy.org</strong> → Downloads → descarga la versión para Windows (.exe). Instala normalmente.</div>
+              <div class="callout info">
+                <span class="callout-icon">ℹ️</span>
+                <div class="callout-text"><strong>Primera vez que abres ZAP:</strong> Selecciona "No, I do not want to persist this session" para empezar limpio. Si te pregunta por el certificado CA, acéptalo (lo necesitarás para HTTPS).</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-num-wrap"><div class="step-num sn-red">3</div></div>
+            <div class="step-body">
+              <div class="step-title">Configura ZAP como proxy en Firefox</div>
+              <div class="step-desc">Para que ZAP intercepte el tráfico, configura Firefox para que use ZAP como proxy. ZAP por defecto escucha en el puerto <strong>8080</strong>.</div>
+              <div class="highlight-box">
+                <strong>En Firefox:</strong><br/>
+                1. Menú (☰) → Ajustes → buscar "proxy" → Configuración de red<br/>
+                2. Selecciona <strong>"Configuración manual del proxy"</strong><br/>
+                3. HTTP Proxy: <code>127.0.0.1</code> · Puerto: <code>8080</code><br/>
+                4. Marca "Usar este proxy para HTTPS también"<br/>
+                5. Clic en Aceptar<br/><br/>
+                <strong>O en Chrome con FoxyProxy:</strong><br/>
+                1. Instala la extensión FoxyProxy en Chrome<br/>
+                2. Agrega un proxy: Host <code>127.0.0.1</code>, Puerto <code>8080</code><br/>
+                3. Actívalo antes de navegar a <code>localhost:5173</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-num-wrap"><div class="step-num sn-red">4</div></div>
+            <div class="step-body">
+              <div class="step-title">Navega la aplicación con el proxy activo (Spidering)</div>
+              <div class="step-desc">Con Firefox (proxy configurado), navega manualmente por toda la aplicación:</div>
+              <div class="highlight-box">
+                <ul class="dots">
+                  <li>Abre <code>http://localhost:5173</code></li>
+                  <li>Haz login con el perfil de Estudiante</li>
+                  <li>Activa el modo de reporte, haz clic en el mapa, envía un incidente</li>
+                  <li>Cierra sesión → entra como Autoridad</li>
+                  <li>Revisa el dashboard, haz clic en "Ver Detalles" de un incidente</li>
+                  <li>Haz clic en "Exportar para Policía Nacional"</li>
+                </ul>
+                ZAP irá capturando automáticamente todas las peticiones en el panel "History".
+              </div>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-num-wrap"><div class="step-num sn-red">5</div></div>
+            <div class="step-body">
+              <div class="step-title">Ejecuta el Escaneo Activo (Active Scan)</div>
+              <div class="step-desc">El Active Scan prueba automáticamente vulnerabilidades como XSS, SQL Injection, Path Traversal, etc.</div>
+              <div class="highlight-box">
+                <strong>En ZAP:</strong><br/>
+                1. En el panel "Sites" verás <code>http://localhost:5173</code> y <code>http://localhost:3000</code><br/>
+                2. Clic derecho sobre <code>localhost:3000</code> → "Attack" → "Active Scan"<br/>
+                3. Deja la configuración por defecto → clic en <strong>"Start Scan"</strong><br/>
+                4. Espera a que complete (puede tardar 5–15 minutos)<br/>
+                5. Ve al tab <strong>"Alerts"</strong> para ver los hallazgos
+              </div>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-num-wrap"><div class="step-num sn-red">6</div></div>
+            <div class="step-body">
+              <div class="step-title">Prueba manual de inyección SQL en la API</div>
+              <div class="step-desc">El endpoint <code>POST /api/auth/login</code> del servidor recibe email y password. Prueba manualmente si es vulnerable a SQL Injection usando ZAP.</div>
+              <div class="callout danger">
+                <span class="callout-icon">🧪</span>
+                <div class="callout-text"><strong>Prueba de SQL Injection (solo en entorno local):</strong><br/>
+                En ZAP → intercepta la petición POST /api/auth/login<br/>
+                Modifica el campo email con: <code>' OR '1'='1</code><br/>
+                Envía la petición y observa la respuesta del servidor.<br/>
+                Si responde con datos de usuario sin credenciales válidas → VULNERABILIDAD CONFIRMADA.<br/>
+                Si responde con 401 → el servidor valida correctamente.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-num-wrap"><div class="step-num sn-red">7</div></div>
+            <div class="step-body">
+              <div class="step-title">Prueba manual de XSS en los campos del formulario</div>
+              <div class="step-desc">El campo "Descripción del Suceso" del formulario de reporte acepta texto libre. Prueba si acepta scripts.</div>
+              <div class="highlight-box">
+                <strong>En el formulario de reporte de estudiante:</strong><br/>
+                1. Activa el modo de selección del mapa<br/>
+                2. Selecciona "Tipo: Otros"<br/>
+                3. En el campo descripción escribe: <code>&lt;script&gt;alert('XSS')&lt;/script&gt;</code><br/>
+                4. Envía el reporte<br/>
+                5. Ve al panel de Autoridad a ver la tabla de incidentes y haz clic en "Ver Detalles"<br/><br/>
+                <strong>Resultado esperado:</strong> Vue.js escapa automáticamente el HTML, por lo que NO debe ejecutarse el script. Si lo hace → XSS confirmado.
+              </div>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-num-wrap"><div class="step-num sn-red">8</div></div>
+            <div class="step-body">
+              <div class="step-title">Genera y guarda el reporte de ZAP</div>
+              <div class="step-desc">Exporta los resultados para incluirlos en la práctica.</div>
+              <div class="highlight-box">
+                <strong>En ZAP:</strong><br/>
+                1. Menú → "Report" → "Generate Report"<br/>
+                2. Selecciona formato <strong>HTML</strong> o <strong>PDF</strong><br/>
+                3. Guarda como <code>dast_zap_report.html</code> en la carpeta del proyecto<br/>
+                4. También puedes exportar desde "Alerts" → clic derecho → "Export Selected Alerts as HTML"
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- DAST DevTools -->
+    <div class="tool-card">
+      <div class="tool-head">
+        <span class="tool-emoji">🔧</span>
+        <div>
+          <div class="tool-name">Herramienta Complementaria — Chrome DevTools (Manual)</div>
+          <span class="tool-type tt-free">Incluido en Chrome</span>
+          <span class="tool-type tt-gui">Interfaz Gráfica</span>
+        </div>
+      </div>
+      <div class="tool-body">
+        <p>Las DevTools de Chrome permiten hacer inspección manual de seguridad: revisar cookies, headers HTTP, almacenamiento local y el panel de Seguridad.</p>
+
+        <div class="steps-wrap">
+          <div class="step-card">
+            <div class="step-num-wrap"><div class="step-num sn-red">1</div></div>
+            <div class="step-body">
+              <div class="step-title">Abre Chrome DevTools en SafeCampus</div>
+              <div class="step-desc">Con la app abierta en <code>localhost:5173</code>, presiona <strong>F12</strong> o clic derecho → "Inspeccionar".</div>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-num-wrap"><div class="step-num sn-red">2</div></div>
+            <div class="step-body">
+              <div class="step-title">Inspecciona el almacenamiento del token (Application Tab)</div>
+              <div class="step-desc">Ve al tab <strong>Application</strong> → Storage → Local Storage → <code>http://localhost:5173</code>. Verás las claves <code>token</code> y <code>user</code> guardadas en texto plano.</div>
+              <div class="callout danger">
+                <span class="callout-icon">🚨</span>
+                <div class="callout-text"><strong>Hallazgo DAST:</strong> El token JWT y los datos del usuario se almacenan en <code>localStorage</code>, que es accesible por cualquier script JavaScript de la página. Esto lo hace vulnerable a ataques XSS. En producción se debería usar <code>HttpOnly cookies</code>.</div>
+              </div>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-num-wrap"><div class="step-num sn-red">3</div></div>
+            <div class="step-body">
+              <div class="step-title">Revisa los headers de seguridad HTTP (Network Tab)</div>
+              <div class="step-desc">Ve al tab <strong>Network</strong> → recarga la página → haz clic en cualquier petición → Headers → Response Headers.</div>
+              <div class="highlight-box">
+                <strong>Headers que deberían estar presentes (pero probablemente falten):</strong><br/>
+                • <code>Content-Security-Policy</code> — Previene XSS<br/>
+                • <code>X-Frame-Options: DENY</code> — Previene clickjacking<br/>
+                • <code>Strict-Transport-Security</code> — Fuerza HTTPS<br/>
+                • <code>X-Content-Type-Options: nosniff</code> — Previene MIME sniffing<br/><br/>
+                Si no aparecen → <strong>Hallazgo: Security Headers Faltantes (A05:2021)</strong>
+              </div>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-num-wrap"><div class="step-num sn-red">4</div></div>
+            <div class="step-body">
+              <div class="step-title">Ejecuta Lighthouse Security Audit</div>
+              <div class="step-desc">Lighthouse es la herramienta de auditoría integrada en Chrome.</div>
+              <div class="highlight-box">
+                <strong>En DevTools:</strong><br/>
+                1. Tab "Lighthouse" → selecciona categorías → marca "Best Practices"<br/>
+                2. Clic en "Analyze page load"<br/>
+                3. Revisa la sección de advertencias de seguridad en el reporte<br/>
+                4. Exporta el resultado como HTML o JSON para incluirlo en la práctica
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="findings-title">📋 Tabla de Hallazgos DAST — Completa aquí los resultados</div>
+    <div class="findings-wrap">
+      <table class="findings-table">
+        <thead>
+          <tr><th>Vector de Ataque</th><th>Endpoint / URL</th><th>Método</th><th>Resultado</th><th>Severidad</th><th>OWASP</th><th>Remediación</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>SQL Injection</td><td>/api/auth/login</td><td>POST</td><td>Rellenar con resultado de ZAP</td><td><span class="sev high">Alta</span></td><td>A03:2021</td><td>Usar consultas parametrizadas</td></tr>
+          <tr><td>XSS Reflejado</td><td>/api/incidents (descripcion)</td><td>POST</td><td>Vue escapa → Probablemente seguro</td><td><span class="sev low">Baja</span></td><td>A03:2021</td><td>Vue.js sanitiza por defecto (v-html evitado)</td></tr>
+          <tr><td>Almacenamiento inseguro</td><td>localStorage (token)</td><td>GET</td><td>Token y user en texto plano accesibles</td><td><span class="sev high">Alta</span></td><td>A02:2021</td><td>Migrar a HttpOnly cookies</td></tr>
+          <tr><td>Headers HTTP faltantes</td><td>Todas las rutas</td><td>GET</td><td>CSP, X-Frame-Options ausentes</td><td><span class="sev med">Media</span></td><td>A05:2021</td><td>Agregar headers en Express o Vercel config</td></tr>
+          <tr><td>CORS sin restricción</td><td>/api/*</td><td>OPTIONS</td><td>Acepta peticiones de cualquier origen</td><td><span class="sev med">Media</span></td><td>A05:2021</td><td>Restringir CORS a dominio Vercel específico</td></tr>
+          <tr><td>Ruta sin autenticación</td><td>/api/incidents (GET)</td><td>GET</td><td>Cualquier cliente puede leer todos los incidentes</td><td><span class="sev high">Alta</span></td><td>A01:2021</td><td>Requerir JWT válido en middleware</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <hr class="div"/>
+
+  <!-- ══════════════════════════════════════
+       FASE 3 — IAST
+  ══════════════════════════════════════ -->
+  <section class="section" id="iast">
+    <div class="phase-header ph-iast">
+      <div class="phase-badge">Fase 3</div>
+      <h3>🟣 IAST — Interactive Application Security Testing</h3>
+      <p>El IAST combina lo mejor de SAST y DAST: instrumenta la aplicación en tiempo de ejecución para detectar vulnerabilidades reales con contexto completo. Para Node.js/Vue.js usaremos <strong>Contrast Security Community Edition</strong> y técnicas manuales de inspección de runtime.</p>
+    </div>
+
+    <div class="callout purple">
+      <span class="callout-icon">🟣</span>
+      <div class="callout-text"><strong>Sobre IAST en este proyecto:</strong> Las herramientas IAST completas (Contrast Security, Seeker, Hdiv) requieren agentes instalados en el servidor. Para esta práctica realizaremos IAST en dos niveles: <strong>Nivel A</strong> — Contrast Community Edition (agente Node.js gratuito) y <strong>Nivel B</strong> — Inspección manual de runtime con Node.js Inspector + Chrome DevTools.</div>
+    </div>
+
+    <!-- IAST Nivel A -->
+    <div class="tool-card">
+      <div class="tool-head">
+        <span class="tool-emoji">🛡️</span>
+        <div>
+          <div class="tool-name">Herramienta A — Contrast Security Community Edition (Agente Node.js)</div>
+          <span class="tool-type tt-free">Gratis (registro requerido)</span>
+          <span class="tool-type tt-cli">CLI + Dashboard Web</span>
+        </div>
+      </div>
+      <div class="tool-body">
+        <div class="steps-wrap">
+          <div class="step-card">
+            <div class="step-num-wrap"><div class="step-num sn-purple">1</div></div>
+            <div class="step-body">
+              <div class="step-title">Regístrate en Contrast Security Community</div>
+              <div class="step-desc">Ve a <strong>app.contrastsecurity.com</strong> → "Sign Up Free" → crea una cuenta con tu correo universitario. Te dará acceso al panel y a la clave del agente.</div>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-num-wrap"><div class="step-num sn-purple">2</div></div>
+            <div class="step-body">
+              <div class="step-title">Instala el agente @contrast/agent en el servidor</div>
+              <div class="code-label">Terminal (en el directorio raíz del proyecto)</div>
+              <div class="code-block">npm install <span class="flag">--save-dev</span> @contrast/agent</div>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-num-wrap"><div class="step-num sn-purple">3</div></div>
+            <div class="step-body">
+              <div class="step-title">Crea el archivo de configuración del agente</div>
+              <div class="step-desc">Crea el archivo <span class="pill pill-s">contrast_security.yaml</span> en la raíz del proyecto con tus credenciales de Contrast.</div>
+              <div class="code-label">Archivo: contrast_security.yaml</div>
+              <div class="code-block"><span class="comment"># Obtén estos valores desde tu dashboard de Contrast Security</span>
+api:
+  url: https://app.contrastsecurity.com/Contrast
+  api_key: <span class="flag">TU_API_KEY_AQUI</span>
+  service_key: <span class="flag">TU_SERVICE_KEY_AQUI</span>
+  user_name: <span class="flag">tu-email@dominio.com</span>
+
+application:
+  name: SafeCampus-Monitor
+  version: PMV2
+
+server:
+  name: localhost-dev
+  environment: development</div>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-num-wrap"><div class="step-num sn-purple">4</div></div>
+            <div class="step-body">
+              <div class="step-title">Inicia el servidor con el agente IAST activo</div>
+              <div class="code-label">Terminal</div>
+              <div class="code-block"><span class="comment"># Ejecuta el servidor con el agente Contrast instrumentado</span>
+node <span class="flag">-r</span> @contrast/agent <span class="path">server/index.js</span></div>
+              <div class="step-desc" style="margin-top:.5rem">Si funciona, verás en la terminal mensajes del agente Contrast iniciándose y registrándose en el panel.</div>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-num-wrap"><div class="step-num sn-purple">5</div></div>
+            <div class="step-body">
+              <div class="step-title">Navega la aplicación normalmente (el agente observa)</div>
+              <div class="step-desc">Con el frontend corriendo en <code>localhost:5173</code>, navega la app completa: login, reporte de incidente, ver el dashboard. El agente IAST registra cada operación interna del servidor.</div>
+              <div class="highlight-box">
+                <strong>El agente IAST monitoriza en tiempo real:</strong><br/>
+                • Cada consulta SQL ejecutada → detecta queries sin parametrizar<br/>
+                • Cada dato que entra por HTTP y sale hacia la BD → detecta injection flows<br/>
+                • Operaciones con archivos, cookies y headers<br/>
+                • Flujos de autenticación y autorización
+              </div>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-num-wrap"><div class="step-num sn-purple">6</div></div>
+            <div class="step-body">
+              <div class="step-title">Revisa el dashboard de Contrast Security</div>
+              <div class="step-desc">Abre <code>app.contrastsecurity.com</code> → tu aplicación "SafeCampus-Monitor" → tab "Vulnerabilities". Verás los hallazgos detectados durante la navegación.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- IAST Nivel B -->
+    <div class="tool-card">
+      <div class="tool-head">
+        <span class="tool-emoji">🔬</span>
+        <div>
+          <div class="tool-name">Herramienta B — Node.js Inspector + Chrome DevTools (IAST Manual)</div>
+          <span class="tool-type tt-free">Sin instalación</span>
+          <span class="tool-type tt-gui">Chrome DevTools</span>
+        </div>
+      </div>
+      <div class="tool-body">
+        <p>Alternativa sin registro externo. Usamos el inspector nativo de Node.js para conectar Chrome DevTools directamente al proceso del servidor y monitorizar su comportamiento en tiempo real.</p>
+
+        <div class="steps-wrap">
+          <div class="step-card">
+            <div class="step-num-wrap"><div class="step-num sn-purple">1</div></div>
+            <div class="step-body">
+              <div class="step-title">Inicia el servidor con el inspector de Node.js activo</div>
+              <div class="code-label">Terminal</div>
+              <div class="code-block">node <span class="flag">--inspect</span> <span class="path">server/index.js</span>
+<span class="comment"># Verás: Debugger listening on ws://127.0.0.1:9229/...</span></div>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-num-wrap"><div class="step-num sn-purple">2</div></div>
+            <div class="step-body">
+              <div class="step-title">Conecta Chrome al proceso Node.js</div>
+              <div class="step-desc">Abre Chrome y navega a:</div>
+              <div class="code-block"><span class="path">chrome://inspect</span></div>
+              <div class="step-desc">Verás tu proceso de Node.js listado. Haz clic en <strong>"inspect"</strong> → se abre una ventana de DevTools conectada al servidor.</div>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-num-wrap"><div class="step-num sn-purple">3</div></div>
+            <div class="step-body">
+              <div class="step-title">Coloca breakpoints en puntos críticos del servidor</div>
+              <div class="step-desc">En el panel de DevTools del servidor, abre <span class="pill pill-s">server/index.js</span> y coloca breakpoints (clic en el número de línea) en:</div>
+              <div class="highlight-box">
+                • Línea 32 — <code>const user = await db.get('SELECT * FROM usuarios...')</code> — Ver qué datos llegan a la consulta SQL<br/>
+                • Línea 81 — <code>const { tipo, severidad, jornada... } = req.body</code> — Ver qué datos llegan del frontend<br/>
+                • Línea 96 — <code>await db.run('INSERT INTO incidentes...')</code> — Ver qué se inserta en la BD
+              </div>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-num-wrap"><div class="step-num sn-purple">4</div></div>
+            <div class="step-body">
+              <div class="step-title">Ejecuta acciones en la app y observa el flujo de datos</div>
+              <div class="step-desc">Con el frontend abierto en otra pestaña, intenta:</div>
+              <div class="highlight-box">
+                <ul class="dots">
+                  <li>Login con credenciales válidas → observa el objeto <code>user</code> en el breakpoint</li>
+                  <li>Login con email <code>' OR '1'='1</code> → observa cómo reacciona la query</li>
+                  <li>Reportar incidente con descripción larga o con caracteres especiales → observa el <code>req.body</code></li>
+                  <li>Hacer GET /api/incidents <strong>sin token</strong> usando la pestaña Network de DevTools</li>
+                </ul>
+              </div>
+              <div class="callout danger">
+                <span class="callout-icon">🚨</span>
+                <div class="callout-text"><strong>Hallazgo IAST esperado:</strong> Al hacer GET /api/incidents sin autenticación, el servidor responde con todos los incidentes. El IAST confirma que no hay middleware de autenticación en esa ruta — vulnerabilidad A01:2021 Broken Access Control confirmada con evidencia de flujo completo.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-num-wrap"><div class="step-num sn-purple">5</div></div>
+            <div class="step-body">
+              <div class="step-title">Prueba de autorización horizontal (IDOR)</div>
+              <div class="step-desc">Verifica si un estudiante puede acceder al panel de autoridades cambiando el token JWT manualmente.</div>
+              <div class="highlight-box">
+                <strong>En DevTools → Application → Local Storage:</strong><br/>
+                1. Inicia sesión como Estudiante<br/>
+                2. Abre DevTools → Application → Local Storage<br/>
+                3. Modifica el campo <code>user</code> → cambia <code>"rol":"ESTUDIANTE"</code> por <code>"rol":"AUTORIDAD"</code><br/>
+                4. Recarga la página<br/><br/>
+                <strong>Resultado esperado:</strong> Si el router permite acceder al dashboard de autoridad solo por el rol en localStorage (sin verificar en el servidor) → IDOR confirmado. Esto es una vulnerabilidad A01:2021 crítica.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="findings-title">📋 Tabla de Hallazgos IAST — Completa aquí los resultados</div>
+    <div class="findings-wrap">
+      <table class="findings-table">
+        <thead>
+          <tr><th>Hallazgo IAST</th><th>Componente</th><th>Flujo detectado</th><th>Severidad</th><th>OWASP</th><th>Remediación</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Sin middleware de autenticación en rutas API</td><td>server/index.js (GET /api/incidents)</td><td>HTTP Request → DB Query sin validar token</td><td><span class="sev high">Alta</span></td><td>A01:2021</td><td>Agregar middleware <code>verifyToken</code> en todas las rutas protegidas</td></tr>
+          <tr><td>Control de acceso basado en cliente (IDOR)</td><td>src/router/ + localStorage</td><td>Modificación de rol en LocalStorage → acceso al dashboard</td><td><span class="sev high">Alta</span></td><td>A01:2021</td><td>Validar el rol del usuario en el servidor en cada petición</td></tr>
+          <tr><td>Queries SQL con parámetros de cliente directo</td><td>server/index.js línea 32</td><td>req.body.email → SQL string (aunque parametrizado con ?)</td><td><span class="sev low">Baja</span></td><td>A03:2021</td><td>Ya usa prepared statements (?). Agregar validación de tipo de dato previa</td></tr>
+          <tr><td>Ausencia de rate limiting en login</td><td>POST /api/auth/login</td><td>Posible fuerza bruta sin bloqueo de intentos</td><td><span class="sev med">Media</span></td><td>A07:2021</td><td>Implementar <code>express-rate-limit</code> con max 5 intentos/min</td></tr>
+          <tr><td>Datos de incidente sin sanitización</td><td>server/index.js línea 81</td><td>req.body → INSERT directo con solo validación de campos vacíos</td><td><span class="sev med">Media</span></td><td>A03:2021</td><td>Usar librería <code>validator.js</code> para sanitizar antes de insertar</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <hr class="div"/>
+
+  <!-- ══════════════════════════════════════
+       COMPARATIVA FINAL
+  ══════════════════════════════════════ -->
+  <section class="section" id="compare">
+    <div class="section-h">
+      <div class="section-icon si-green">📊</div>
+      <div><h2>Análisis Comparativo Final</h2><small>SAST vs DAST vs IAST — ¿Cuál detectó qué?</small></div>
+    </div>
+
+    <p>La siguiente tabla resume el poder de detección de cada técnica aplicada a SafeCampus Monitor:</p>
+
+    <div class="cmp-wrap">
+      <table class="cmp-table">
+        <thead>
+          <tr>
+            <th>Vulnerabilidad</th>
+            <th class="h-sast">SAST</th>
+            <th class="h-dast">DAST</th>
+            <th class="h-iast">IAST</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Contraseñas hardcodeadas en código</td><td><span class="ck">✓ Detectado</span></td><td><span class="cx">— No visible</span></td><td><span class="cx">— No observable</span></td></tr>
+          <tr><td>Token JWT sin firma real</td><td><span class="ck">✓ Detectado</span></td><td><span class="cp">⚠ Parcial</span></td><td><span class="ck">✓ Detectado</span></td></tr>
+          <tr><td>CORS sin restricción de origen</td><td><span class="ck">✓ Detectado</span></td><td><span class="ck">✓ Detectado</span></td><td><span class="ck">✓ Detectado</span></td></tr>
+          <tr><td>URL de API expuesta en frontend</td><td><span class="ck">✓ Detectado</span></td><td><span class="cx">— No visible</span></td><td><span class="cx">— No observable</span></td></tr>
+          <tr><td>Token en localStorage (XSS risk)</td><td><span class="cp">⚠ Parcial</span></td><td><span class="ck">✓ Detectado</span></td><td><span class="ck">✓ Detectado</span></td></tr>
+          <tr><td>Security Headers HTTP faltantes</td><td><span class="cx">— No visible</span></td><td><span class="ck">✓ Detectado</span></td><td><span class="cx">— No observable</span></td></tr>
+          <tr><td>Rutas API sin autenticación</td><td><span class="cp">⚠ Parcial</span></td><td><span class="ck">✓ Detectado</span></td><td><span class="ck">✓ Detectado</span></td></tr>
+          <tr><td>IDOR (escalada de privilegios)</td><td><span class="cx">— No visible</span></td><td><span class="cp">⚠ Parcial</span></td><td><span class="ck">✓ Detectado</span></td></tr>
+          <tr><td>Sin rate limiting en login</td><td><span class="cx">— No visible</span></td><td><span class="ck">✓ Detectado</span></td><td><span class="ck">✓ Detectado</span></td></tr>
+          <tr><td>XSS en campo descripción</td><td><span class="cx">— No visible</span></td><td><span class="ck">✓ Probado</span></td><td><span class="ck">✓ Flujo observado</span></td></tr>
+          <tr><td>Ausencia de sanitización de inputs</td><td><span class="cp">⚠ Parcial</span></td><td><span class="cp">⚠ Parcial</span></td><td><span class="ck">✓ Flujo completo</span></td></tr>
+          <tr><td>Dependencias con CVE</td><td><span class="ck">✓ Detectado</span></td><td><span class="cx">— No visible</span></td><td><span class="cx">— No observable</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout ok" style="margin-top:1.5rem">
+      <span class="callout-icon">💡</span>
+      <div class="callout-text">
+        <strong>Conclusión clave de la comparativa:</strong>
+        Ninguna técnica por sí sola es suficiente. <strong>SAST</strong> encontró vulnerabilidades en el código que DAST nunca vería (credenciales hardcodeadas, dependencias). <strong>DAST</strong> encontró problemas reales de configuración y comportamiento que SAST no puede ver. <strong>IAST</strong> confirmó los hallazgos más críticos con evidencia de flujo de datos completo, especialmente el problema de control de acceso y la escalada de privilegios.
+      </div>
+    </div>
+  </section>
+
+  <hr class="div"/>
+
+  <!-- ══════════════════════════════════════
+       TABLA MAESTRA DE HALLAZGOS
+  ══════════════════════════════════════ -->
+  <section class="section" id="tabla">
+    <div class="section-h">
+      <div class="section-icon si-amber">📋</div>
+      <div><h2>Tabla Maestra de Hallazgos y Remediaciones</h2><small>Resumen ejecutivo de todas las vulnerabilidades encontradas</small></div>
+    </div>
+
+    <div class="findings-wrap">
+      <table class="findings-table">
+        <thead>
+          <tr><th>#</th><th>Vulnerabilidad</th><th>Técnica</th><th>Sev.</th><th>OWASP 2021</th><th>Archivo / Endpoint</th><th>Remediación Propuesta</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>V-01</td><td>Contraseñas en texto plano en código</td><td>SAST</td><td><span class="sev high">Alta</span></td><td>A07:2021</td><td>authStore.js + server/index.js</td><td>Variables de entorno (.env) + bcrypt para hash</td></tr>
+          <tr><td>V-02</td><td>JWT simulado sin firma criptográfica</td><td>SAST / IAST</td><td><span class="sev high">Alta</span></td><td>A02:2021</td><td>server/index.js línea 47</td><td>Usar jsonwebtoken con <code>JWT_SECRET</code> en .env</td></tr>
+          <tr><td>V-03</td><td>Token almacenado en localStorage</td><td>DAST / IAST</td><td><span class="sev high">Alta</span></td><td>A02:2021</td><td>authStore.js (localStorage)</td><td>Migrar a HttpOnly Cookies con SameSite=Strict</td></tr>
+          <tr><td>V-04</td><td>Rutas API sin middleware de autenticación</td><td>DAST / IAST</td><td><span class="sev high">Alta</span></td><td>A01:2021</td><td>GET /api/incidents</td><td>Middleware <code>verifyToken</code> en todas las rutas protegidas</td></tr>
+          <tr><td>V-05</td><td>IDOR — Escalada de privilegios por cliente</td><td>IAST</td><td><span class="sev high">Alta</span></td><td>A01:2021</td><td>Vue Router / localStorage.user.rol</td><td>Verificar rol en el servidor (no confiar en cliente)</td></tr>
+          <tr><td>V-06</td><td>CORS sin restricción de origen</td><td>SAST / DAST</td><td><span class="sev med">Media</span></td><td>A05:2021</td><td>server/index.js línea 8</td><td><code>cors({ origin: 'https://tu-app.vercel.app' })</code></td></tr>
+          <tr><td>V-07</td><td>Security Headers HTTP ausentes</td><td>DAST</td><td><span class="sev med">Media</span></td><td>A05:2021</td><td>Todas las rutas HTTP</td><td>Instalar <code>helmet</code> en Express o configurar en vercel.json</td></tr>
+          <tr><td>V-08</td><td>Sin rate limiting en endpoint de login</td><td>DAST / IAST</td><td><span class="sev med">Media</span></td><td>A07:2021</td><td>POST /api/auth/login</td><td><code>express-rate-limit</code>: max 5 req/min por IP</td></tr>
+          <tr><td>V-09</td><td>URL de API hardcodeada en frontend</td><td>SAST</td><td><span class="sev low">Baja</span></td><td>A05:2021</td><td>IncidentController.js línea 3</td><td>Usar variable de entorno <code>import.meta.env.VITE_API_URL</code></td></tr>
+          <tr><td>V-10</td><td>Sin sanitización de inputs del formulario</td><td>SAST / IAST</td><td><span class="sev med">Media</span></td><td>A03:2021</td><td>server/index.js (POST /api/incidents)</td><td>Usar <code>validator.js</code> o <code>express-validator</code> para limpiar req.body</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout warn" style="margin-top:1.5rem">
+      <span class="callout-icon">📝</span>
+      <div class="callout-text">
+        <strong>Para completar el informe de la práctica:</strong>
+        Reemplaza los campos "Rellenar con resultado de ZAP" con los datos reales obtenidos durante tu ejecución. Agrega capturas de pantalla de: (1) la salida de npm audit, (2) el reporte de Semgrep, (3) el panel de Alerts de ZAP y (4) la inspección de localStorage en DevTools de Chrome.
+      </div>
+    </div>
+
+    <div style="margin-top:2rem; background:var(--slate-9);border-radius:14px;padding:1.5rem 1.75rem;color:white">
+      <p style="font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#64748b;margin-bottom:1rem">📖 Referencias y Recursos</p>
+      <ul style="list-style:none;display:flex;flex-direction:column;gap:.5rem">
+        <li style="font-size:.82rem;color:#94a3b8">• <strong style="color:#e2e8f0">OWASP Top 10 2021</strong> → owasp.org/www-project-top-ten</li>
+        <li style="font-size:.82rem;color:#94a3b8">• <strong style="color:#e2e8f0">OWASP ZAP</strong> → zaproxy.org</li>
+        <li style="font-size:.82rem;color:#94a3b8">• <strong style="color:#e2e8f0">Semgrep Docs</strong> → semgrep.dev/docs</li>
+        <li style="font-size:.82rem;color:#94a3b8">• <strong style="color:#e2e8f0">Contrast Security CE</strong> → app.contrastsecurity.com</li>
+        <li style="font-size:.82rem;color:#94a3b8">• <strong style="color:#e2e8f0">npm audit docs</strong> → docs.npmjs.com/cli/commands/npm-audit</li>
+        <li style="font-size:.82rem;color:#94a3b8">• <strong style="color:#e2e8f0">eslint-plugin-security</strong> → github.com/eslint-community/eslint-plugin-security</li>
+        <li style="font-size:.82rem;color:#94a3b8">• <strong style="color:#e2e8f0">Helmet.js (Express)</strong> → helmetjs.github.io</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+
+<!-- ═══════════ FOOTER ═══════════ -->
+<footer style="background:var(--slate-9);color:white;padding:2rem 1.5rem;margin-top:3rem">
+  <div style="max-width:860px;margin:0 auto;display:flex;justify-content:space-between;flex-wrap:wrap;gap:1rem;align-items:center">
+    <div>
+      <div style="font-weight:800;font-size:.95rem;margin-bottom:.25rem">SafeCampus Monitor — Práctica de Laboratorio</div>
+      <div style="font-size:.75rem;color:#64748b">Análisis Comparativo SAST · DAST · IAST | Fe y Alegría Ecuador | 2026</div>
+    </div>
+    <div style="font-size:.75rem;color:#64748b;text-align:right">
+      Mateo Pozo · Diego Cevallos<br/>Seguridad de Software
+    </div>
+  </div>
+</footer>
+
+<button class="print-btn no-print" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+
+</body>
+</html>
