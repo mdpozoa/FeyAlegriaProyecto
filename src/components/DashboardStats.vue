@@ -153,4 +153,29 @@ const store = useIncidentStore()
   color: var(--warning-color);
   font-weight: 600;
 }
+
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.875rem;
+  }
+
+  .stat-card {
+    padding: 1.1rem;
+  }
+
+  .stat-value {
+    font-size: 1.6rem;
+  }
+
+  .stat-value.font-type {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
 </style>

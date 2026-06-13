@@ -1,25 +1,32 @@
 import { Incident } from '../models/Incident'
 
-const API_URL = typeof window !== 'undefined' && window.location.hostname
-  ? `http://${window.location.hostname}:3000/api`
-  : 'http://localhost:3000/api'
+const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api'
+
+function getToken() {
+  return localStorage.getItem('sc_token')
+}
+
+function authHeaders() {
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${getToken()}`
+  }
+}
 
 export class IncidentController {
-  // Intentar conectar con el backend de SQLite, con fallback de seguridad a LocalStorage
+
   static async getIncidents() {
     try {
       const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 1200) // 1.2 segundos de timeout
+      const timeoutId = setTimeout(() => controller.abort(), 5000)
 
       const response = await fetch(`${API_URL}/incidents`, {
+        headers: authHeaders(),
         signal: controller.signal
       })
-      
       clearTimeout(timeoutId)
 
-      if (!response.ok) {
-        throw new Error('Servidor remoto retornó error de red')
-      }
+      if (!response.ok) throw new Error(`Error ${response.status}`)
 
       const data = await response.json()
       return data.map(item => new Incident({
@@ -27,46 +34,20 @@ export class IncidentController {
         tipo: item.tipo,
         severidad: item.severidad,
         jornada: item.jornada,
-        horaAprox: item.hora_aprox || item.horaAprox, // Manejo de formato snake_case / camelCase
+        horaAprox: item.horaAprox || item.hora_aprox,
         latitud: item.latitud,
         longitud: item.longitud,
-        reporteroId: item.reportero_id || item.reporteroId,
+        reporteroId: item.reporteroId || item.reportero_id,
         descripcion: item.descripcion,
-        estado: item.estado
+        estado: item.estado || 'Reportado'
       }))
     } catch (err) {
-      console.warn('Aviso: Backend SQLite no disponible o inactivo. SafeCampus Monitor corriendo en Modo Autónomo Local (LocalStorage). Detalle:', err.message)
-      
-      // Fallback a semillas estáticas si no hay datos guardados previamente en el localStorage
-      const localData = localStorage.getItem('incidents')
+      console.warn('⚠️ Backend no disponible, usando LocalStorage:', err.message)
+      const localData = localStorage.getItem('sc_incidents')
       if (localData) {
         return JSON.parse(localData).map(item => new Incident(item))
       }
-      
-      return [
-        new Incident({ 
-          id: 'i1', 
-          tipo: 'Robo', 
-          severidad: 'HIGH', 
-          jornada: 'Matutina', 
-          horaAprox: '07:30', 
-          latitud: -0.2517, 
-          longitud: -78.5162, 
-          reporteroId: 'u1', 
-          descripcion: null 
-        }),
-        new Incident({ 
-          id: 'i2', 
-          tipo: 'Otros', 
-          severidad: 'MEDIUM', 
-          jornada: 'Vespertina', 
-          horaAprox: '18:45', 
-          latitud: -0.2525, 
-          longitud: -78.5150, 
-          reporteroId: 'u2', 
-          descripcion: 'Se identificó presencia de personas sospechosas merodeando en la esquina del portón trasero principal de la institución.' 
-        })
-      ]
+      return []
     }
   }
 
@@ -74,7 +55,7 @@ export class IncidentController {
     try {
       const response = await fetch(`${API_URL}/incidents`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders(),
         body: JSON.stringify({
           tipo: data.tipo,
           severidad: data.severidad,
@@ -82,7 +63,6 @@ export class IncidentController {
           horaAprox: data.horaAprox,
           latitud: data.latitud,
           longitud: data.longitud,
-          reporteroId: data.reporteroId,
           descripcion: data.descripcion
         })
       })
@@ -98,16 +78,21 @@ export class IncidentController {
         tipo: item.tipo,
         severidad: item.severidad,
         jornada: item.jornada,
-        horaAprox: item.hora_aprox || item.horaAprox,
+        horaAprox: item.horaAprox || item.hora_aprox,
         latitud: item.latitud,
         longitud: item.longitud,
-        reporteroId: item.reportero_id || item.reporteroId,
+        reporteroId: item.reporteroId || item.reportero_id,
         descripcion: item.descripcion,
-        estado: item.estado
+        estado: item.estado || 'Reportado'
       })
     } catch (err) {
-      console.warn('Aviso: Guardando incidente en LocalStorage debido a inactividad del backend. Detalle:', err.message)
-      return new Incident(data)
+      console.warn('⚠️ Guardando en LocalStorage:', err.message)
+      const incident = new Incident({ ...data, reporteroId: data.reporteroId })
+      // Persistir en local como fallback
+      const existing = JSON.parse(localStorage.getItem('sc_incidents') || '[]')
+      existing.push(incident)
+      localStorage.setItem('sc_incidents', JSON.stringify(existing))
+      return incident
     }
   }
 
@@ -115,18 +100,24 @@ export class IncidentController {
     try {
       const response = await fetch(`${API_URL}/incidents/${id}/status`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders(),
         body: JSON.stringify({ estado: status })
       })
-
-      if (!response.ok) {
-        throw new Error('Servidor retornó error al actualizar el estado')
-      }
-
+      if (!response.ok) throw new Error('Error al actualizar estado')
       return await response.json()
     } catch (err) {
-      console.warn('Aviso: Guardando estado de incidente en LocalStorage por inactividad de red. Detalle:', err.message)
+      console.warn('⚠️ Actualizando estado en LocalStorage:', err.message)
       return { id, estado: status }
     }
+  }
+
+  // Crea una conexión SSE y devuelve el EventSource
+  static createSSEConnection() {
+    const token = getToken()
+    if (!token) return null
+    const url = `${API_URL}/incidents/stream`
+    // Pasamos el token via query param para SSE (EventSource no soporta headers)
+    const es = new EventSource(`${url}?token=${token}`)
+    return es
   }
 }

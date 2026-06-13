@@ -220,18 +220,38 @@ const handleLogout = () => {
   .app-header {
     padding: 0.75rem 1rem;
   }
-  .brand-sub {
+
+  .logo h1 {
+    font-size: 1.1rem;
+  }
+
+  .brand-sub, .divider-text {
     display: none;
   }
-  .divider-text {
-    display: none;
-  }
+
   .user-profile-info {
-    display: none; /* Oculta detalles en móviles pequeños para ganar espacio */
+    display: none;
   }
+
+  .user-actions {
+    gap: 0.6rem;
+  }
+
   .btn-login-nav, .btn-dashboard-nav {
-    padding: 0.4rem 0.75rem;
+    padding: 0.45rem 0.7rem;
     font-size: 0.7rem;
+  }
+
+  .btn-logout {
+    padding: 0.45rem 0.6rem;
+    font-size: 0.7rem;
+    gap: 0.25rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .btn-logout span {
+    display: none;
   }
 }
 </style>

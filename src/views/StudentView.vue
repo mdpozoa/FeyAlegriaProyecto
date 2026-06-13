@@ -88,17 +88,17 @@
           </thead>
           <tbody>
             <tr v-for="report in studentReports" :key="report.id" class="table-row">
-              <td class="font-bold-cell">{{ report.tipo }}</td>
-              <td>
+              <td class="font-bold-cell" data-label="Tipo">{{ report.tipo }}</td>
+              <td data-label="Severidad">
                 <span :class="['badge-severity', report.severidad.toLowerCase()]">
                   {{ report.severidad === 'HIGH' ? 'CRÍTICO' : report.severidad === 'MEDIUM' ? 'PREVENTIVO' : 'BAJO' }}
                 </span>
               </td>
-              <td>{{ report.jornada }}</td>
-              <td>{{ report.horaAprox }}</td>
-              <td class="coordinates-cell">{{ report.latitud.toFixed(4) }}, {{ report.longitud.toFixed(4) }}</td>
-              <td>
-                <span :class="['status-badge-inline', (report.estado || 'Reportado').toLowerCase()]">
+              <td data-label="Jornada">{{ report.jornada }}</td>
+              <td data-label="Hora">{{ report.horaAprox }}</td>
+              <td class="coordinates-cell" data-label="Ubicación">{{ report.latitud.toFixed(4) }}, {{ report.longitud.toFixed(4) }}</td>
+              <td data-label="Estado">
+                <span :class="['status-badge-inline', (report.estado || 'Reportado').toLowerCase().replace(' ', '-')]">
                   {{ report.estado || 'Reportado' }}
                 </span>
               </td>
@@ -276,23 +276,14 @@ const formData = ref({
   descripcion: ''
 })
 
-let pollInterval = null
-
-onMounted(() => {
-  if (store.incidents.length === 0) {
-    store.fetchIncidents()
-  }
-
-  // Polling cada 4 segundos para actualizar incidentes y estados (soporte tiempo real multiventana)
-  pollInterval = setInterval(() => {
-    store.fetchIncidents()
-  }, 4000)
+onMounted(async () => {
+  await store.fetchIncidents()
+  // Conectar SSE para tiempo real
+  store.connectSSE()
 })
 
 onUnmounted(() => {
-  if (pollInterval) {
-    clearInterval(pollInterval)
-  }
+  store.disconnectSSE()
 })
 
 const activarSeleccion = () => {
@@ -816,17 +807,6 @@ const submitReport = async () => {
   transition: color 0.2s;
   height: fit-content;
 }
-  font-size: 1.15rem;
-  font-weight: 500;
-  color: #94a3b8;
-  cursor: pointer;
-  position: absolute;
-  top: 0.5rem;
-  right: 0.75rem;
-  transition: color 0.2s;
-  padding: 0;
-  line-height: 1;
-}
 
 .btn-dismiss-item:hover {
   color: var(--primary-color);
@@ -1049,5 +1029,124 @@ const submitReport = async () => {
   padding: 2.5rem !important;
   color: #94a3b8;
   font-style: italic;
+}
+
+/* ============================================================
+   RESPONSIVE MOBILE
+   ============================================================ */
+@media (max-width: 768px) {
+  .student-view {
+    gap: 1.25rem;
+    padding-top: 0.25rem;
+  }
+
+  /* Banner apilado en móvil */
+  .banner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.5rem 1.25rem;
+  }
+
+  .banner-content h2 {
+    font-size: 1.35rem;
+  }
+
+  .banner-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .btn-report, .btn-cancel {
+    flex: 1;
+    justify-content: center;
+    font-size: 0.875rem;
+    padding: 0.85rem 1rem;
+  }
+
+  /* Mapa adaptado */
+  .map-section {
+    padding: 1rem;
+  }
+
+  /* Tabla → Tarjetas en móvil */
+  .my-reports-table-wrapper {
+    overflow-x: hidden;
+  }
+
+  .my-reports-table thead {
+    display: none;
+  }
+
+  .my-reports-table,
+  .my-reports-table tbody,
+  .my-reports-table tr,
+  .my-reports-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .my-reports-table tr {
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    margin-bottom: 0.75rem;
+    padding: 1rem;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+
+  .my-reports-table td {
+    padding: 0.35rem 0;
+    border-bottom: none;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .my-reports-table td::before {
+    content: attr(data-label);
+    font-weight: 700;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    color: #94a3b8;
+    min-width: 80px;
+    flex-shrink: 0;
+  }
+
+  .coordinates-cell {
+    font-size: 0.75rem;
+  }
+
+  /* Modal adaptado para móvil */
+  .modal-content {
+    padding: 1.75rem 1.25rem;
+    border-radius: 16px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  /* Toast adaptado */
+  .toast-alert, .toast-alert-success {
+    bottom: 1rem;
+    left: 1rem;
+    right: 1rem;
+    max-width: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .banner-content h2 {
+    font-size: 1.2rem;
+  }
+
+  .student-badge-container {
+    flex-wrap: wrap;
+  }
+
+  .notification-dropdown {
+    width: calc(100vw - 2rem);
+    right: -1rem;
+  }
 }
 </style>

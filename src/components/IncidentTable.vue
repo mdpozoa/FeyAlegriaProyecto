@@ -27,20 +27,20 @@
         </thead>
         <tbody>
           <tr v-for="incident in store.incidents" :key="incident.id" class="table-row">
-            <td class="font-medium">
+            <td class="font-medium" data-label="Tipo">
               <span class="type-indicator" :class="{ 'other-type': incident.tipo === 'Otros' }">
                 {{ incident.tipo }}
               </span>
             </td>
-            <td>
+            <td data-label="Severidad">
               <span :class="['badge', incident.severidad.toLowerCase()]">
                 {{ incident.severidad === 'HIGH' ? 'CRÍTICO' : incident.severidad === 'MEDIUM' ? 'PREVENTIVO' : 'BAJO' }}
               </span>
             </td>
-            <td>{{ incident.jornada }}</td>
-            <td>{{ incident.horaAprox }}</td>
-            <td class="geo-coord">{{ incident.latitud.toFixed(4) }}, {{ incident.longitud.toFixed(4) }}</td>
-            <td>
+            <td data-label="Jornada">{{ incident.jornada }}</td>
+            <td data-label="Hora">{{ incident.horaAprox }}</td>
+            <td class="geo-coord" data-label="Ubicación">{{ incident.latitud.toFixed(4) }}, {{ incident.longitud.toFixed(4) }}</td>
+            <td data-label="Acción">
               <button @click="openDetails(incident)" class="action-btn">
                 Ver Detalles
               </button>
@@ -494,5 +494,75 @@ tr:last-child td {
 
 .btn-close-modal:hover {
   background-color: var(--primary-color);
+}
+
+/* ============================================================
+   RESPONSIVE MOBILE — IncidentTable
+   ============================================================ */
+@media (max-width: 768px) {
+  .table-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1.25rem;
+  }
+
+  .btn-dark {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Convertir tabla en tarjetas */
+  table thead { display: none; }
+
+  table, tbody, tr, td {
+    display: block;
+    width: 100%;
+  }
+
+  tr {
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    margin: 0.75rem;
+    padding: 1rem;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+
+  td {
+    padding: 0.35rem 0;
+    border-bottom: none;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  td::before {
+    content: attr(data-label);
+    font-weight: 700;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    color: #94a3b8;
+    min-width: 90px;
+    flex-shrink: 0;
+  }
+
+  /* Modal full-height en móvil */
+  .modal-content {
+    max-height: 92vh;
+    overflow-y: auto;
+    padding: 1.5rem 1.25rem;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+  }
+
+  .btn-action-resolve,
+  .btn-close-modal {
+    width: 100%;
+    justify-content: center;
+  }
 }
 </style>

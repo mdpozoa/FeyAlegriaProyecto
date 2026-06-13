@@ -2,6 +2,7 @@ import sqlite3 from 'sqlite3'
 import { open } from 'sqlite'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import bcrypt from 'bcryptjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -11,65 +12,111 @@ export async function initDB() {
     driver: sqlite3.Database
   })
 
-  // Habilitar restricciones de claves foráneas
-  await db.get("PRAGMA foreign_keys = ON")
+  await db.exec("PRAGMA foreign_keys = ON")
+  await db.exec("PRAGMA journal_mode = WAL")
 
-  // Crear Tabla de Usuarios
+  // ============================================================
+  // TABLAS EN TERCERA FORMA NORMAL (3FN)
+  // ============================================================
+
+  // Catálogo de tipos de incidente (elimina dependencias transitivas)
   await db.exec(`
-    CREATE TABLE IF NOT EXISTS usuarios (
-      id TEXT PRIMARY KEY,
-      nombre TEXT NOT NULL,
-      email TEXT UNIQUE NOT NULL,
-      contrasena_hash TEXT NOT NULL,
-      rol TEXT NOT NULL CHECK(rol IN ('ESTUDIANTE', 'AUTORIDAD')),
-      nivel_educativo TEXT CHECK(nivel_educativo IN ('Básica', 'Bachillerato', NULL)),
-      grado_curso TEXT,
-      creado_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    CREATE TABLE IF NOT EXISTS tipos_incidente (
+      id   TEXT PRIMARY KEY,
+      nombre TEXT UNIQUE NOT NULL
     )
   `)
 
-  // Crear Tabla de Incidentes (con tipo 'Otros' y campo descripcion)
+  // Catálogo de jornadas
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS jornadas (
+      id     TEXT PRIMARY KEY,
+      nombre TEXT UNIQUE NOT NULL
+    )
+  `)
+
+  // Tabla principal de usuarios
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS usuarios (
+      id              TEXT PRIMARY KEY,
+      nombre          TEXT NOT NULL,
+      email           TEXT UNIQUE NOT NULL,
+      contrasena_hash TEXT NOT NULL,
+      rol             TEXT NOT NULL CHECK(rol IN ('ESTUDIANTE', 'AUTORIDAD')),
+      creado_at       DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `)
+
+  // Perfil extendido del estudiante (separado por 3FN)
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS perfiles_estudiante (
+      id              TEXT PRIMARY KEY,
+      usuario_id      TEXT UNIQUE NOT NULL,
+      nivel_educativo TEXT CHECK(nivel_educativo IN ('Básica', 'Bachillerato')),
+      grado_curso     TEXT,
+      FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+    )
+  `)
+
+  // Tabla de incidentes (usa FKs a catálogos)
   await db.exec(`
     CREATE TABLE IF NOT EXISTS incidentes (
-      id TEXT PRIMARY KEY,
-      tipo TEXT NOT NULL CHECK(tipo IN ('Robo', 'Acoso', 'Zona Oscura', 'Infraestructura', 'Otros')),
-      severidad TEXT NOT NULL CHECK(severidad IN ('HIGH', 'MEDIUM', 'LOW')),
-      jornada TEXT NOT NULL CHECK(jornada IN ('Matutina', 'Vespertina')),
-      hora_aprox TEXT NOT NULL,
-      latitud REAL NOT NULL,
-      longitud REAL NOT NULL,
+      id           TEXT PRIMARY KEY,
+      tipo_id      TEXT NOT NULL,
+      severidad    TEXT NOT NULL CHECK(severidad IN ('HIGH', 'MEDIUM', 'LOW')),
+      jornada_id   TEXT NOT NULL,
+      hora_aprox   TEXT NOT NULL,
+      latitud      REAL NOT NULL,
+      longitud     REAL NOT NULL,
       reportero_id TEXT,
-      descripcion TEXT,
-      estado TEXT DEFAULT 'Reportado',
-      creado_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      descripcion  TEXT,
+      estado       TEXT NOT NULL DEFAULT 'Reportado' CHECK(estado IN ('Reportado', 'Revisado', 'En Proceso')),
+      creado_at    DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (tipo_id)      REFERENCES tipos_incidente(id),
+      FOREIGN KEY (jornada_id)   REFERENCES jornadas(id),
       FOREIGN KEY (reportero_id) REFERENCES usuarios(id) ON DELETE SET NULL
     )
   `)
 
-  // Intentar agregar la columna estado en caso de que la tabla ya existiera previamente
-  try {
-    await db.exec("ALTER TABLE incidentes ADD COLUMN estado TEXT DEFAULT 'Reportado'")
-  } catch (e) {
-    // Ignorar si la columna ya existe en la base de datos
+  // ============================================================
+  // POBLAR CATÁLOGOS (si están vacíos)
+  // ============================================================
+  const tiposCount = await db.get('SELECT COUNT(*) as c FROM tipos_incidente')
+  if (tiposCount.c === 0) {
+    await db.exec(`
+      INSERT INTO tipos_incidente (id, nombre) VALUES
+      ('t1', 'Robo'),
+      ('t2', 'Acoso'),
+      ('t3', 'Zona Oscura'),
+      ('t4', 'Infraestructura'),
+      ('t5', 'Otros')
+    `)
   }
 
-  // Poblar base de datos con usuarios y datos semilla para Fe y Alegría
-  const userExist = await db.get("SELECT id FROM usuarios LIMIT 1")
-  if (!userExist) {
-    // Nota: Las contraseñas semilla son 'Estudiante123' para estudiantes y 'AdminSeguridad123' para autoridad.
-    // Hashes cifrados con bcrypt en un entorno real. Aquí usamos hashes bcrypt válidos correspondientes a esas contraseñas.
-    await db.run(`
-      INSERT INTO usuarios (id, nombre, email, contrasena_hash, rol, nivel_educativo, grado_curso) VALUES
-      ('u1', 'Carlos Andrade', 'estudiante@feyalegria.edu.ec', '$2b$10$wO3cKqK6L8GomR9P9v2qP.4xPkyXmHwD/1PzBpy59hT0.r0Fw4J0W', 'ESTUDIANTE', 'Bachillerato', '3ro BGU "A"'),
-      ('u2', 'Sofía Pérez', 'estudiante.basica@feyalegria.edu.ec', '$2b$10$wO3cKqK6L8GomR9P9v2qP.4xPkyXmHwD/1PzBpy59hT0.r0Fw4J0W', 'ESTUDIANTE', 'Básica', '9no EGB "B"'),
-      ('u3', 'Dra. Carmen Ruiz (Rectora)', 'autoridad@feyalegria.edu.ec', '$2b$10$tZ2cKqK6L8GomR9P9v2qP.4xPkyXmHwD/1PzBpy59hT0.r0Fw4J0W', 'AUTORIDAD', NULL, NULL)
+  const jornadasCount = await db.get('SELECT COUNT(*) as c FROM jornadas')
+  if (jornadasCount.c === 0) {
+    await db.exec(`
+      INSERT INTO jornadas (id, nombre) VALUES
+      ('j1', 'Matutina'),
+      ('j2', 'Vespertina')
     `)
-    
-    await db.run(`
-      INSERT INTO incidentes (id, tipo, severidad, jornada, hora_aprox, latitud, longitud, reportero_id, descripcion) VALUES
-      ('i1', 'Robo', 'HIGH', 'Matutina', '07:30', -0.2517, -78.5162, 'u1', NULL),
-      ('i2', 'Otros', 'MEDIUM', 'Vespertina', '18:45', -0.2525, -78.5150, 'u2', 'Se identificó presencia de personas sospechosas merodeando en la esquina del portón trasero principal de la institución.')
-    `)
+  }
+
+  // ============================================================
+  // CREAR USUARIO ADMINISTRADOR (si no existe)
+  // ============================================================
+  const adminEmail = process.env.ADMIN_EMAIL || 'admin@safecampus.edu.ec'
+  const adminPassword = process.env.ADMIN_PASSWORD || 'SafeCampus2024!'
+  const adminNombre = process.env.ADMIN_NAME || 'Administrador SafeCampus'
+
+  const adminExiste = await db.get('SELECT id FROM usuarios WHERE email = ?', [adminEmail])
+  if (!adminExiste) {
+    const hash = await bcrypt.hash(adminPassword, 12)
+    await db.run(
+      `INSERT INTO usuarios (id, nombre, email, contrasena_hash, rol) VALUES (?, ?, ?, ?, 'AUTORIDAD')`,
+      [crypto.randomUUID(), adminNombre, adminEmail, hash]
+    )
+    console.log(`✅ Administrador creado: ${adminEmail}`)
   }
 
   return db

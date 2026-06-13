@@ -38,4 +38,16 @@ const isLandingPage = computed(() => route.name === 'home')
   max-width: 100%;
   margin: 0;
 }
+
+@media (max-width: 768px) {
+  .main-content {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-content {
+    padding: 0.75rem;
+  }
+}
 </style>
