@@ -1,6 +1,6 @@
-import { query } from './_lib/db.js'
+import { query } from './../_lib/db.js'
 import bcrypt from 'bcryptjs'
-import { signToken } from './_lib/auth.js'
+import { signToken } from './../_lib/auth.js'
 import { randomUUID } from 'crypto'
 
 export default async function handler(req, res) {
