@@ -89,7 +89,7 @@
           </div>
         </div>
 
-        <div class="form-row">
+        <div class="form-row-three">
           <div class="form-group">
             <label for="reg-nivel">Nivel Educativo</label>
             <select id="reg-nivel" v-model="regForm.nivelEducativo" required>
@@ -98,8 +98,16 @@
             </select>
           </div>
           <div class="form-group">
-            <label for="reg-grado">Grado / Curso</label>
-            <input type="text" id="reg-grado" v-model="regForm.gradoCurso" placeholder='Ej: 3ro BGU "A"' />
+            <label for="reg-grado">Grado / Año</label>
+            <select id="reg-grado" v-model="selectedGrado" required>
+              <option v-for="g in gradosDisponibles" :key="g" :value="g">{{ g }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="reg-paralelo">Paralelo</label>
+            <select id="reg-paralelo" v-model="selectedParalelo" required>
+              <option v-for="p in paralelosDisponibles" :key="p" :value="p">{{ p }}</option>
+            </select>
           </div>
         </div>
 
@@ -146,7 +154,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/authStore'
 
@@ -169,6 +177,23 @@ const regForm = ref({
   gradoCurso: ''
 })
 
+const selectedGrado = ref('')
+const selectedParalelo = ref('A')
+
+const gradosDisponibles = computed(() => {
+  if (regForm.value.nivelEducativo === 'Bachillerato') {
+    return ['1ro BGU', '2do BGU', '3ro BGU']
+  } else {
+    return ['8vo EGB', '9no EGB', '10mo EGB']
+  }
+})
+
+const paralelosDisponibles = ['A', 'B', 'C', 'D', 'E', 'F']
+
+watch(() => regForm.value.nivelEducativo, (newNivel) => {
+  selectedGrado.value = newNivel === 'Bachillerato' ? '1ro BGU' : '8vo EGB'
+}, { immediate: true })
+
 const handleLogin = async () => {
   try {
     const user = await authStore.login(loginForm.value.email, loginForm.value.password)
@@ -189,6 +214,14 @@ const handleRegister = async () => {
     regError.value = 'La contraseña debe tener al menos 6 caracteres'
     return
   }
+
+  if (!selectedGrado.value || !selectedParalelo.value) {
+    regError.value = 'Por favor selecciona el Grado y Paralelo'
+    return
+  }
+
+  regForm.value.gradoCurso = `${selectedGrado.value} "${selectedParalelo.value}"`
+
   try {
     const user = await authStore.register({
       nombre: regForm.value.nombre,
@@ -316,6 +349,12 @@ const handleRegister = async () => {
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.form-row-three {
+  display: grid;
+  grid-template-columns: 2fr 2fr 1fr;
   gap: 0.75rem;
 }
 
@@ -460,7 +499,8 @@ const handleRegister = async () => {
     padding: 1.75rem 1.25rem;
     border-radius: 20px;
   }
-  .form-row {
+  .form-row,
+  .form-row-three {
     grid-template-columns: 1fr;
   }
 }
