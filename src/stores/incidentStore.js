@@ -6,8 +6,7 @@ export const useIncidentStore = defineStore('incident', {
     incidents: [],
     isLoading: false,
     error: null,
-    sseConnected: false,
-    _sseSource: null
+    _pollInterval: null
   }),
 
   getters: {
@@ -37,15 +36,14 @@ export const useIncidentStore = defineStore('incident', {
       this.isLoading = true
       try {
         const newIncident = await IncidentController.createIncident(incidentData)
-        // SSE broadcast lo añadirá automáticamente si está conectado
-        // Si no hay SSE, lo añadimos manualmente para consistencia inmediata
-        if (!this.sseConnected) {
-          this.incidents.unshift(newIncident)
-          localStorage.setItem('sc_incidents', JSON.stringify(this.incidents))
-        }
+        // Añadimos optimistamente al inicio de la lista
+        const exists = this.incidents.find(i => i.id === newIncident.id)
+        if (!exists) this.incidents.unshift(newIncident)
+        localStorage.setItem('sc_incidents', JSON.stringify(this.incidents))
         return newIncident
       } catch (err) {
         this.error = err.message
+        throw err
       } finally {
         this.isLoading = false
       }
@@ -55,76 +53,37 @@ export const useIncidentStore = defineStore('incident', {
       this.isLoading = true
       try {
         await IncidentController.updateIncidentStatus(id, newStatus)
-        // SSE actualizará reactivamente. Si no hay SSE, actualizamos local:
-        if (!this.sseConnected) {
-          const idx = this.incidents.findIndex(i => i.id === id)
-          if (idx !== -1) {
-            this.incidents[idx] = { ...this.incidents[idx], estado: newStatus }
-            localStorage.setItem('sc_incidents', JSON.stringify(this.incidents))
-          }
+        // Actualización optimista local inmediata
+        const idx = this.incidents.findIndex(i => i.id === id)
+        if (idx !== -1) {
+          this.incidents[idx] = { ...this.incidents[idx], estado: newStatus }
+          localStorage.setItem('sc_incidents', JSON.stringify(this.incidents))
         }
       } catch (err) {
         this.error = err.message
+        throw err
       } finally {
         this.isLoading = false
       }
     },
 
-    // Inicia la conexión SSE para tiempo real
-    connectSSE() {
-      if (this._sseSource) return // Ya conectado
+    // Polling cada 5 segundos para actualizaciones en tiempo real
+    startPolling() {
+      if (this._pollInterval) return
+      this._pollInterval = setInterval(() => {
+        this.fetchIncidents()
+      }, 5000)
+    },
 
-      const es = IncidentController.createSSEConnection()
-      if (!es) return
-
-      this._sseSource = es
-
-      es.addEventListener('connected', () => {
-        this.sseConnected = true
-        console.log('📡 SSE conectado — tiempo real activo')
-      })
-
-      // Nuevo incidente creado → añadir al inicio de la lista
-      es.addEventListener('new_incident', (event) => {
-        try {
-          const incident = JSON.parse(event.data)
-          // Evitar duplicados
-          if (!this.incidents.find(i => i.id === incident.id)) {
-            this.incidents.unshift(incident)
-            localStorage.setItem('sc_incidents', JSON.stringify(this.incidents))
-          }
-        } catch (e) {
-          console.error('Error procesando evento SSE:', e)
-        }
-      })
-
-      // Estado actualizado → actualizar en la lista
-      es.addEventListener('status_updated', (event) => {
-        try {
-          const { id, estado } = JSON.parse(event.data)
-          const idx = this.incidents.findIndex(i => i.id === id)
-          if (idx !== -1) {
-            this.incidents[idx] = { ...this.incidents[idx], estado }
-            localStorage.setItem('sc_incidents', JSON.stringify(this.incidents))
-          }
-        } catch (e) {
-          console.error('Error procesando evento SSE:', e)
-        }
-      })
-
-      es.onerror = () => {
-        this.sseConnected = false
-        console.warn('⚠️ SSE desconectado, reintentando...')
-        // El navegador reintentará automáticamente
+    stopPolling() {
+      if (this._pollInterval) {
+        clearInterval(this._pollInterval)
+        this._pollInterval = null
       }
     },
 
-    disconnectSSE() {
-      if (this._sseSource) {
-        this._sseSource.close()
-        this._sseSource = null
-        this.sseConnected = false
-      }
-    }
+    // Alias para compatibilidad con SSE anterior
+    connectSSE() { this.startPolling() },
+    disconnectSSE() { this.stopPolling() }
   }
 })
