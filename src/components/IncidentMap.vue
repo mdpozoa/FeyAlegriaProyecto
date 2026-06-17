@@ -104,10 +104,11 @@ let markers = []
 let tempMarker = null
 let searchMarker = null
 
-// Coordenadas de la Unidad Educativa Dolores de Fe y Alegría — Llano Grande, Quito
-const HOME_LAT = -0.1120   // Llano Grande, Calderón, Quito (verificado)
-const HOME_LNG = -78.4448
-const HOME_ZOOM = 16
+// Coordenadas exactas: Unidad Educativa Fe y Alegría La Dolorosa
+// Dirección: Av. García Moreno S3-411, Llano Grande, Calderón, Quito
+const HOME_LAT = -0.0633
+const HOME_LNG = -78.4485
+const HOME_ZOOM = 17
 
 // Estado de búsqueda
 const searchQuery = ref('')
@@ -134,7 +135,7 @@ const initMap = () => {
     iconAnchor: [16, 16]
   })
   L.marker([HOME_LAT, HOME_LNG], { icon: schoolIcon })
-    .bindPopup('<b>Unidad Educativa Dolores</b><br>Fe y Alegría — Llano Grande')
+    .bindPopup('<b>Unidad Educativa Fe y Alegría La Dolorosa</b><br>Av. García Moreno S3-411, Llano Grande<br>Calderón, Quito')
     .addTo(map)
 
   if (props.allowSelection) {
