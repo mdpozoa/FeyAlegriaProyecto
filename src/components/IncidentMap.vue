@@ -105,9 +105,9 @@ let tempMarker = null
 let searchMarker = null
 
 // Coordenadas exactas: Unidad Educativa Fe y Alegría La Dolorosa
-// Dirección: Av. García Moreno S3-411, Llano Grande, Calderón, Quito
-const HOME_LAT = -0.0633
-const HOME_LNG = -78.4485
+// Intersección: Calle Fe y Alegría + Gabriel García Moreno, Llano Grande, Calderón, Quito
+const HOME_LAT = -0.1188
+const HOME_LNG = -78.4269
 const HOME_ZOOM = 17
 
 // Estado de búsqueda
