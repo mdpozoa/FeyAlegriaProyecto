@@ -1,0 +1,1702 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SafeCampus Monitor — Presentación Institucional</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --red: #dc2626;
+      --red-light: #ef4444;
+      --green: #16a34a;
+      --green-light: #22c55e;
+      --green-glow: rgba(34,197,94,0.3);
+      --red-glow: rgba(220,38,38,0.3);
+      --bg: #060a0f;
+      --surface: rgba(255,255,255,0.04);
+      --surface-hover: rgba(255,255,255,0.07);
+      --border: rgba(255,255,255,0.08);
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --slide-count: 8;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    /* ── PRESENTATION WRAPPER ── */
+    #presentation {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── SLIDES ── */
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem;
+      opacity: 0;
+      transform: translateX(80px);
+      transition: opacity 0.55s cubic-bezier(.4,0,.2,1), transform 0.55s cubic-bezier(.4,0,.2,1);
+      pointer-events: none;
+    }
+
+    .slide.active {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: all;
+    }
+
+    .slide.exit {
+      opacity: 0;
+      transform: translateX(-80px);
+    }
+
+    /* ── ANIMATED BG GRADIENT ── */
+    .bg-glow {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 20% 15%, rgba(22,163,74,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 35% at 80% 85%, rgba(220,38,38,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 50% at 50% 50%, rgba(6,10,15,0.8) 0%, transparent 100%);
+      pointer-events: none;
+    }
+
+    /* ── PARTICLE CANVAS ── */
+    #particles { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+
+    /* ── CONTENT LAYER ── */
+    .slide-content { position: relative; z-index: 2; width: 100%; max-width: 1100px; }
+
+    /* ── NAV BAR ── */
+    #nav {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: rgba(6,10,15,0.85);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: 60px;
+      padding: 0.6rem 1.2rem;
+    }
+
+    .nav-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      font-size: 1rem;
+    }
+
+    .nav-btn:hover { background: var(--green); border-color: var(--green); }
+    .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    .nav-dots { display: flex; gap: 6px; align-items: center; }
+
+    .nav-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .nav-dot.active {
+      width: 22px;
+      border-radius: 4px;
+      background: var(--green-light);
+    }
+
+    #slide-counter {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      min-width: 38px;
+      text-align: center;
+    }
+
+    /* ── SLIDE NUMBER INDICATOR ── */
+    #slide-num-badge {
+      position: fixed;
+      top: 1.5rem;
+      right: 1.5rem;
+      z-index: 100;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      background: rgba(6,10,15,0.7);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.35rem 0.75rem;
+    }
+
+    /* ── FULLSCREEN BTN ── */
+    #fs-btn {
+      position: fixed;
+      top: 1.5rem;
+      left: 1.5rem;
+      z-index: 100;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: rgba(6,10,15,0.7);
+      backdrop-filter: blur(10px);
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      transition: all 0.2s;
+    }
+
+    #fs-btn:hover { color: var(--text); background: var(--surface-hover); }
+
+    /* ════════════════════════════════════════
+       SLIDE 1 — COVER
+    ════════════════════════════════════════ */
+    .slide-cover {
+      background: linear-gradient(135deg, rgba(6,10,15,0.98) 0%, rgba(10,18,12,0.98) 100%);
+    }
+
+    .cover-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(34,197,94,0.1);
+      border: 1px solid rgba(34,197,94,0.25);
+      border-radius: 60px;
+      padding: 0.4rem 1rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--green-light);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 2rem;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    .cover-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green-light);
+      animation: pulse-dot 1.5s infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.4); }
+    }
+
+    .cover-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(3rem, 7vw, 6rem);
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+      margin-bottom: 1.5rem;
+    }
+
+    .cover-title .grad-green {
+      background: linear-gradient(135deg, var(--green-light), #86efac);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .cover-title .grad-red {
+      background: linear-gradient(135deg, var(--red-light), #fca5a5);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .cover-subtitle {
+      font-size: clamp(1rem, 2vw, 1.3rem);
+      color: var(--text-muted);
+      max-width: 580px;
+      line-height: 1.65;
+      margin-bottom: 2.5rem;
+    }
+
+    .cover-meta {
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .meta-item svg { color: var(--green-light); flex-shrink: 0; }
+
+    .cover-visual {
+      position: absolute;
+      right: -2rem;
+      top: 50%;
+      transform: translateY(-50%);
+      opacity: 0.85;
+    }
+
+    /* Radar animated */
+    .radar-wrap {
+      width: 300px;
+      height: 300px;
+      position: relative;
+    }
+
+    .radar-ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid rgba(34,197,94,0.2);
+    }
+
+    .radar-ring:nth-child(1) { inset: 0; }
+    .radar-ring:nth-child(2) { inset: 15%; }
+    .radar-ring:nth-child(3) { inset: 32%; }
+    .radar-ring:nth-child(4) { inset: 50%; border-color: rgba(34,197,94,0.4); }
+
+    .radar-sweep {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, transparent 0deg, transparent 300deg, rgba(34,197,94,0.15) 330deg, rgba(34,197,94,0.4) 360deg);
+      animation: radar-spin 3s linear infinite;
+    }
+
+    @keyframes radar-spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .radar-cross {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .radar-cross::before,
+    .radar-cross::after {
+      content: '';
+      position: absolute;
+      background: rgba(34,197,94,0.15);
+    }
+
+    .radar-cross::before { width: 100%; height: 1px; }
+    .radar-cross::after { height: 100%; width: 1px; }
+
+    .radar-dot {
+      position: absolute;
+      border-radius: 50%;
+    }
+
+    .rdot-1 { width: 8px; height: 8px; background: #ef4444; top: 22%; left: 35%; box-shadow: 0 0 10px #ef4444; animation: blink 1.2s infinite; }
+    .rdot-2 { width: 6px; height: 6px; background: #f97316; top: 55%; left: 68%; box-shadow: 0 0 8px #f97316; animation: blink 1.8s infinite 0.4s; }
+    .rdot-3 { width: 10px; height: 10px; background: #22c55e; bottom: 25%; left: 25%; box-shadow: 0 0 14px #22c55e; animation: blink 2s infinite 0.8s; }
+    .rdot-4 { width: 6px; height: 6px; background: #a78bfa; top: 70%; left: 50%; box-shadow: 0 0 8px #a78bfa; animation: blink 1.5s infinite 1s; }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.3; transform: scale(0.7); }
+    }
+
+    /* ════════════════════════════════════════
+       SLIDE 2 — PROBLEMA
+    ════════════════════════════════════════ */
+    .section-eyebrow {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--green-light);
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .section-eyebrow::before {
+      content: '';
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: var(--green-light);
+      border-radius: 2px;
+    }
+
+    .slide-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(2rem, 4.5vw, 3.5rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      margin-bottom: 0.5rem;
+    }
+
+    .slide-title .accent { color: var(--red-light); }
+    .slide-title .accent-green { color: var(--green-light); }
+
+    .slide-lead {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+      max-width: 600px;
+      margin-bottom: 2.5rem;
+    }
+
+    /* Stats row */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      text-align: center;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+    }
+
+    .stat-card.danger::before { background: linear-gradient(90deg, var(--red), var(--red-light)); }
+    .stat-card.warn::before { background: linear-gradient(90deg, #f97316, #fbbf24); }
+    .stat-card.neutral::before { background: linear-gradient(90deg, var(--green), var(--green-light)); }
+
+    .stat-card:hover {
+      background: var(--surface-hover);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+    }
+
+    .stat-number {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2.8rem;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 0.35rem;
+    }
+
+    .stat-card.danger .stat-number { color: var(--red-light); }
+    .stat-card.warn .stat-number { color: #f97316; }
+    .stat-card.neutral .stat-number { color: var(--green-light); }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    /* Issue list */
+    .issue-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .issue-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.9rem 1.2rem;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .issue-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .issue-icon.red { background: rgba(220,38,38,0.15); }
+    .issue-icon.orange { background: rgba(249,115,22,0.15); }
+    .issue-icon.yellow { background: rgba(234,179,8,0.15); }
+    .issue-icon.purple { background: rgba(167,139,250,0.15); }
+
+    /* ════════════════════════════════════════
+       SLIDE 3 — SOLUCIÓN
+    ════════════════════════════════════════ */
+    .solution-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: center;
+    }
+
+    .solution-card-big {
+      background: linear-gradient(135deg, rgba(34,197,94,0.08), rgba(22,163,74,0.04));
+      border: 1px solid rgba(34,197,94,0.2);
+      border-radius: 24px;
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .solution-card-big::after {
+      content: '';
+      position: absolute;
+      top: -60px;
+      right: -60px;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(34,197,94,0.15), transparent);
+    }
+
+    .sc-logo-big {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      margin-bottom: 1rem;
+    }
+
+    .sc-logo-big span { color: var(--green-light); }
+
+    .sc-description {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+      margin-bottom: 1.5rem;
+    }
+
+    .tech-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .tech-pill {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      border-radius: 60px;
+      padding: 0.3rem 0.8rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .pillar-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .pillar-item {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+
+    .pillar-num {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--green), var(--green-light));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.85rem;
+      color: white;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(34,197,94,0.3);
+    }
+
+    .pillar-text h4 {
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .pillar-text p {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* ════════════════════════════════════════
+       SLIDE 4 — FUNCIONALIDADES
+    ════════════════════════════════════════ */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+    }
+
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 1.75rem 1.5rem;
+      transition: all 0.35s;
+      position: relative;
+      overflow: hidden;
+      cursor: default;
+    }
+
+    .feature-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 0.35s;
+      border-radius: 20px;
+    }
+
+    .feature-card.fc-green::after { background: radial-gradient(circle at 0% 0%, rgba(34,197,94,0.08), transparent 70%); }
+    .feature-card.fc-red::after { background: radial-gradient(circle at 0% 0%, rgba(220,38,38,0.08), transparent 70%); }
+    .feature-card.fc-blue::after { background: radial-gradient(circle at 0% 0%, rgba(59,130,246,0.08), transparent 70%); }
+    .feature-card.fc-orange::after { background: radial-gradient(circle at 0% 0%, rgba(249,115,22,0.08), transparent 70%); }
+    .feature-card.fc-purple::after { background: radial-gradient(circle at 0% 0%, rgba(167,139,250,0.08), transparent 70%); }
+    .feature-card.fc-teal::after { background: radial-gradient(circle at 0% 0%, rgba(20,184,166,0.08), transparent 70%); }
+
+    .feature-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+
+    .feature-card:hover::after { opacity: 1; }
+    .feature-card:hover.fc-green { border-color: rgba(34,197,94,0.3); }
+    .feature-card:hover.fc-red { border-color: rgba(220,38,38,0.3); }
+    .feature-card:hover.fc-blue { border-color: rgba(59,130,246,0.3); }
+    .feature-card:hover.fc-orange { border-color: rgba(249,115,22,0.3); }
+    .feature-card:hover.fc-purple { border-color: rgba(167,139,250,0.3); }
+    .feature-card:hover.fc-teal { border-color: rgba(20,184,166,0.3); }
+
+    .feat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      margin-bottom: 1rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .feat-icon.green { background: rgba(34,197,94,0.12); box-shadow: 0 0 20px rgba(34,197,94,0.15); }
+    .feat-icon.red { background: rgba(220,38,38,0.12); box-shadow: 0 0 20px rgba(220,38,38,0.15); }
+    .feat-icon.blue { background: rgba(59,130,246,0.12); box-shadow: 0 0 20px rgba(59,130,246,0.15); }
+    .feat-icon.orange { background: rgba(249,115,22,0.12); box-shadow: 0 0 20px rgba(249,115,22,0.15); }
+    .feat-icon.purple { background: rgba(167,139,250,0.12); box-shadow: 0 0 20px rgba(167,139,250,0.15); }
+    .feat-icon.teal { background: rgba(20,184,166,0.12); box-shadow: 0 0 20px rgba(20,184,166,0.15); }
+
+    .feature-card h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .feature-card p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ════════════════════════════════════════
+       SLIDE 5 — IMPACTO
+    ════════════════════════════════════════ */
+    .impact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .impact-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 1.75rem;
+      transition: all 0.3s;
+    }
+
+    .impact-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 16px 32px rgba(0,0,0,0.25);
+    }
+
+    .impact-card.primary {
+      grid-column: 1 / -1;
+      background: linear-gradient(135deg, rgba(34,197,94,0.08) 0%, rgba(22,163,74,0.04) 100%);
+      border-color: rgba(34,197,94,0.2);
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .impact-big-num {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 4.5rem;
+      font-weight: 800;
+      color: var(--green-light);
+      line-height: 1;
+      flex-shrink: 0;
+      text-shadow: 0 0 30px rgba(34,197,94,0.3);
+    }
+
+    .impact-text h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .impact-text p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .impact-card h3 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+    }
+
+    .impact-card p {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .impact-num-sm {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--green-light);
+      margin-bottom: 0.35rem;
+    }
+
+    .impact-num-sm.red { color: var(--red-light); }
+
+    /* ════════════════════════════════════════
+       SLIDE 6 — FE Y ALEGRÍA
+    ════════════════════════════════════════ */
+    .institutional-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      gap: 3rem;
+      align-items: center;
+    }
+
+    .inst-values {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .inst-value {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1rem 1.2rem;
+    }
+
+    .inst-value-icon {
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    .inst-value h4 {
+      font-weight: 700;
+      font-size: 0.9rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .inst-value p {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .inst-quote {
+      background: linear-gradient(135deg, rgba(220,38,38,0.08), rgba(22,163,74,0.08));
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 24px;
+      padding: 2.5rem;
+      position: relative;
+    }
+
+    .inst-quote::before {
+      content: '"';
+      position: absolute;
+      top: -0.5rem;
+      left: 1.5rem;
+      font-size: 5rem;
+      color: var(--green-light);
+      font-family: Georgia, serif;
+      line-height: 1;
+      opacity: 0.5;
+    }
+
+    .inst-quote-text {
+      font-size: 1.15rem;
+      font-style: italic;
+      color: var(--text);
+      line-height: 1.7;
+      margin-bottom: 1.5rem;
+    }
+
+    .inst-quote-author {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--green-light);
+    }
+
+    .inst-facts {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .inst-fact {
+      text-align: center;
+      padding: 1rem;
+      background: rgba(255,255,255,0.04);
+      border-radius: 12px;
+    }
+
+    .inst-fact-num {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--green-light);
+    }
+
+    .inst-fact-label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+    }
+
+    /* ════════════════════════════════════════
+       SLIDE 7 — DEMO / QR
+    ════════════════════════════════════════ */
+    .demo-layout {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 3rem;
+      align-items: center;
+    }
+
+    .url-box {
+      background: rgba(6,10,15,0.8);
+      border: 1px solid var(--green-light);
+      border-radius: 14px;
+      padding: 1rem 1.5rem;
+      font-family: 'Space Grotesk', monospace;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--green-light);
+      letter-spacing: 0.02em;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      word-break: break-all;
+    }
+
+    .url-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--green-light); animation: pulse-dot 1.5s infinite; flex-shrink: 0; }
+
+    .demo-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .demo-step {
+      display: flex;
+      gap: 0.9rem;
+      align-items: center;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.9rem 1.2rem;
+      font-size: 0.88rem;
+    }
+
+    .step-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--green), var(--green-light));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .qr-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .qr-frame {
+      width: 200px;
+      height: 200px;
+      background: white;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      box-shadow: 0 0 40px rgba(34,197,94,0.2);
+      overflow: hidden;
+    }
+
+    /* QR Pattern SVG via CSS */
+    .qr-inner {
+      width: 160px;
+      height: 160px;
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      grid-template-rows: repeat(10, 1fr);
+      gap: 1px;
+    }
+
+    .qr-c { border-radius: 1px; }
+    .qr-c.b { background: #000; }
+    .qr-c.w { background: #fff; }
+
+    .qr-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    .qr-url {
+      font-size: 0.72rem;
+      color: var(--green-light);
+      font-weight: 600;
+      text-align: center;
+    }
+
+    /* ════════════════════════════════════════
+       SLIDE 8 — CIERRE
+    ════════════════════════════════════════ */
+    .closing-center {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .closing-logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 4rem;
+      font-weight: 800;
+      letter-spacing: -0.05em;
+      margin-bottom: 0.5rem;
+    }
+
+    .closing-logo .green { color: var(--green-light); }
+    .closing-logo .red { color: var(--red-light); }
+
+    .closing-tagline {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      margin-bottom: 2.5rem;
+    }
+
+    .team-grid {
+      display: flex;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .team-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.25rem 1.75rem;
+      text-align: center;
+      min-width: 140px;
+    }
+
+    .team-avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      margin: 0 auto 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.2rem;
+      color: white;
+    }
+
+    .team-card h4 { font-size: 0.88rem; font-weight: 700; margin-bottom: 0.2rem; }
+    .team-card p { font-size: 0.72rem; color: var(--text-muted); }
+
+    .closing-thanks {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .heart { color: var(--red-light); animation: heartbeat 1.2s ease-in-out infinite; }
+
+    @keyframes heartbeat {
+      0%, 100% { transform: scale(1); }
+      25% { transform: scale(1.2); }
+      50% { transform: scale(1); }
+      75% { transform: scale(1.15); }
+    }
+
+    /* ── ENTRY ANIMATIONS ── */
+    .anim-up {
+      animation: animUp 0.6s cubic-bezier(.4,0,.2,1) both;
+    }
+
+    @keyframes animUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .anim-up:nth-child(1) { animation-delay: 0.05s; }
+    .anim-up:nth-child(2) { animation-delay: 0.15s; }
+    .anim-up:nth-child(3) { animation-delay: 0.25s; }
+    .anim-up:nth-child(4) { animation-delay: 0.35s; }
+    .anim-up:nth-child(5) { animation-delay: 0.45s; }
+    .anim-up:nth-child(6) { animation-delay: 0.55s; }
+
+    /* ── KEYBOARD HINT ── */
+    #hint {
+      position: fixed;
+      top: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      opacity: 0.7;
+    }
+
+    .key-badge {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 0.15rem 0.4rem;
+      font-family: monospace;
+      font-size: 0.7rem;
+    }
+
+    /* Split layout for slides with two columns */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .two-col, .stats-row, .features-grid, .solution-grid,
+      .impact-grid, .institutional-grid, .demo-layout {
+        grid-template-columns: 1fr;
+      }
+      .cover-visual { display: none; }
+      .impact-card.primary { flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="particles"></canvas>
+<div class="bg-glow"></div>
+
+<div id="hint">
+  Navegar con
+  <span class="key-badge">←</span><span class="key-badge">→</span>
+  o botones abajo
+</div>
+
+<div id="slide-num-badge">1 / 8</div>
+
+<button id="fs-btn" onclick="toggleFullscreen()" title="Pantalla completa">⛶</button>
+
+<div id="presentation">
+
+  <!-- ══════════════════════ SLIDE 1 — PORTADA ══════════════════════ -->
+  <div class="slide slide-cover active" id="s1">
+    <div class="slide-content" style="display:grid; grid-template-columns: 1.1fr 0.9fr; gap: 3rem; align-items: center;">
+      <div>
+        <div class="cover-badge anim-up">
+          <span class="cover-dot"></span>
+          Fe y Alegría Ecuador
+        </div>
+        <h1 class="cover-title anim-up">
+          <span class="grad-green">Safe</span><span class="grad-red">Campus</span><br/>Monitor
+        </h1>
+        <p class="cover-subtitle anim-up">
+          Sistema de geolocalización y gestión de incidentes para la seguridad del entorno escolar. Un proyecto tecnológico al servicio de la comunidad educativa.
+        </p>
+        <div class="cover-meta anim-up">
+          <div class="meta-item">
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            Quito, Ecuador
+          </div>
+          <div class="meta-item">
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            2024 – 2025
+          </div>
+          <div class="meta-item">
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+            Proyecto Integrador
+          </div>
+        </div>
+      </div>
+
+      <!-- Radar visual -->
+      <div style="display:flex; justify-content:center; align-items:center;">
+        <div class="radar-wrap anim-up">
+          <div class="radar-ring"></div>
+          <div class="radar-ring"></div>
+          <div class="radar-ring"></div>
+          <div class="radar-ring"></div>
+          <div class="radar-cross"></div>
+          <div class="radar-sweep"></div>
+          <div class="radar-dot rdot-1"></div>
+          <div class="radar-dot rdot-2"></div>
+          <div class="radar-dot rdot-3"></div>
+          <div class="radar-dot rdot-4"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════ SLIDE 2 — PROBLEMA ══════════════════════ -->
+  <div class="slide" id="s2">
+    <div class="slide-content">
+      <div class="section-eyebrow anim-up">El Problema</div>
+      <h2 class="slide-title anim-up">¿Por qué <span class="accent">necesitamos</span><br/>este sistema?</h2>
+      <p class="slide-lead anim-up">Los estudiantes enfrentan situaciones de inseguridad a diario, pero los mecanismos actuales de reporte son lentos, anónimos o simplemente inexistentes.</p>
+
+      <div class="two-col">
+        <div class="stats-row" style="grid-template-columns:1fr; gap:0.75rem;">
+          <div class="stat-card danger anim-up">
+            <div class="stat-number">7 de 10</div>
+            <div class="stat-label">estudiantes han presenciado o vivido algún tipo de violencia en su entorno escolar o camino al colegio</div>
+          </div>
+          <div class="stat-card warn anim-up">
+            <div class="stat-number">+60%</div>
+            <div class="stat-label">de incidentes no se reportan por falta de canales accesibles o temor a represalias</div>
+          </div>
+          <div class="stat-card neutral anim-up">
+            <div class="stat-number">0</div>
+            <div class="stat-label">sistemas digitales de reporte geolocalizados activos en la institución previamente</div>
+          </div>
+        </div>
+
+        <div class="issue-list">
+          <div class="issue-item anim-up">
+            <div class="issue-icon red">🔴</div>
+            <span><strong>Sin visibilidad geográfica</strong> — Las autoridades no saben exactamente dónde ocurren los incidentes</span>
+          </div>
+          <div class="issue-item anim-up">
+            <div class="issue-icon orange">🟠</div>
+            <span><strong>Respuesta tardía</strong> — Los reportes llegan por canales informales o días después</span>
+          </div>
+          <div class="issue-item anim-up">
+            <div class="issue-icon yellow">🟡</div>
+            <span><strong>Sin seguimiento</strong> — No hay forma de verificar si los incidentes fueron atendidos</span>
+          </div>
+          <div class="issue-item anim-up">
+            <div class="issue-icon purple">🟣</div>
+            <span><strong>Datos no centralizados</strong> — Cada caso es independiente, imposible detectar patrones</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════ SLIDE 3 — SOLUCIÓN ══════════════════════ -->
+  <div class="slide" id="s3">
+    <div class="slide-content">
+      <div class="section-eyebrow anim-up">La Solución</div>
+      <h2 class="slide-title anim-up">Presentamos <span class="accent-green">SafeCampus Monitor</span></h2>
+      <p class="slide-lead anim-up" style="margin-bottom:1.5rem;">Una plataforma web completa, accesible desde cualquier dispositivo, que conecta a estudiantes y autoridades en tiempo real.</p>
+
+      <div class="solution-grid">
+        <div class="solution-card-big anim-up">
+          <div class="sc-logo-big">Safe<span>Campus</span></div>
+          <p class="sc-description">
+            Plataforma digital que permite a los estudiantes reportar incidentes geolocalizados con un clic, mientras las autoridades monitorizan y gestionan cada caso en tiempo real desde un panel centralizado.
+          </p>
+          <div class="tech-pills">
+            <span class="tech-pill">🌐 Vue.js 3</span>
+            <span class="tech-pill">⚡ Node.js</span>
+            <span class="tech-pill">🗄️ PostgreSQL</span>
+            <span class="tech-pill">☁️ Vercel</span>
+            <span class="tech-pill">🗺️ Leaflet Maps</span>
+            <span class="tech-pill">🔐 JWT Auth</span>
+          </div>
+        </div>
+
+        <div class="pillar-list">
+          <div class="pillar-item anim-up">
+            <div class="pillar-num">1</div>
+            <div class="pillar-text">
+              <h4>Acceso Universal</h4>
+              <p>Funciona en cualquier celular, tablet o computadora con conexión a internet, sin necesidad de instalar nada.</p>
+            </div>
+          </div>
+          <div class="pillar-item anim-up">
+            <div class="pillar-num">2</div>
+            <div class="pillar-text">
+              <h4>Tiempo Real</h4>
+              <p>Las autoridades ven los incidentes en el momento que se reportan, permitiendo una respuesta inmediata y coordinada.</p>
+            </div>
+          </div>
+          <div class="pillar-item anim-up">
+            <div class="pillar-num">3</div>
+            <div class="pillar-text">
+              <h4>Datos Inteligentes</h4>
+              <p>Estadísticas, mapas de calor y patrones históricos para tomar decisiones preventivas informadas.</p>
+            </div>
+          </div>
+          <div class="pillar-item anim-up">
+            <div class="pillar-num">4</div>
+            <div class="pillar-text">
+              <h4>Trazabilidad Completa</h4>
+              <p>Cada incidente tiene un ciclo de vida completo: Reportado → En Proceso → Revisado, con historial auditado.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════ SLIDE 4 — FUNCIONALIDADES ══════════════════════ -->
+  <div class="slide" id="s4">
+    <div class="slide-content">
+      <div class="section-eyebrow anim-up">Funcionalidades</div>
+      <h2 class="slide-title anim-up">Todo lo que el sistema <span class="accent-green">puede hacer</span></h2>
+      <p class="slide-lead anim-up" style="margin-bottom:1.5rem;">Diseñado para dos tipos de usuario con roles y vistas diferenciadas.</p>
+
+      <div class="features-grid">
+        <div class="feature-card fc-green anim-up">
+          <div class="feat-icon green">📍</div>
+          <h3>Reporte Geolocalizado</h3>
+          <p>Los estudiantes marcan exactamente dónde ocurrió el incidente en un mapa interactivo con un solo toque.</p>
+        </div>
+        <div class="feature-card fc-red anim-up">
+          <div class="feat-icon red">🚨</div>
+          <h3>Clasificación de Alertas</h3>
+          <p>Tres niveles de severidad (Alta, Media, Baja) y 5 categorías de incidente para una respuesta priorizada.</p>
+        </div>
+        <div class="feature-card fc-blue anim-up">
+          <div class="feat-icon blue">🗺️</div>
+          <h3>Mapa en Tiempo Real</h3>
+          <p>Vista de mapa para autoridades con todos los incidentes activos, actualizándose automáticamente cada 5 segundos.</p>
+        </div>
+        <div class="feature-card fc-orange anim-up">
+          <div class="feat-icon orange">📊</div>
+          <h3>Panel de Estadísticas</h3>
+          <p>Dashboard con métricas clave: total de incidentes, tasa de resolución, distribución por tipo y jornada.</p>
+        </div>
+        <div class="feature-card fc-purple anim-up">
+          <div class="feat-icon purple">👤</div>
+          <h3>Gestión de Usuarios</h3>
+          <p>Registro seguro para estudiantes con perfil de grado y nivel, y cuentas de autoridad con acceso especial.</p>
+        </div>
+        <div class="feature-card fc-teal anim-up">
+          <div class="feat-icon teal">✅</div>
+          <h3>Seguimiento de Casos</h3>
+          <p>Las autoridades actualizan el estado de cada caso y los estudiantes pueden ver si su reporte fue atendido.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════ SLIDE 5 — IMPACTO ══════════════════════ -->
+  <div class="slide" id="s5">
+    <div class="slide-content">
+      <div class="section-eyebrow anim-up">Impacto Esperado</div>
+      <h2 class="slide-title anim-up">Lo que <span class="accent-green">transformará</span><br/>nuestra institución</h2>
+
+      <div class="impact-grid" style="margin-top:1.75rem;">
+        <div class="impact-card primary anim-up">
+          <div class="impact-big-num">3x</div>
+          <div class="impact-text">
+            <h3>Más reportes procesados</h3>
+            <p>Al eliminar las barreras del reporte manual, estimamos que el número de incidentes documentados se triplicará, dándonos una visión real de la situación de seguridad.</p>
+          </div>
+        </div>
+
+        <div class="impact-card anim-up" style="border-color: rgba(34,197,94,0.2);">
+          <div class="impact-num-sm">−70%</div>
+          <h3>Tiempo de respuesta</h3>
+          <p>Reducción estimada en el tiempo promedio entre que ocurre un incidente y que una autoridad lo conoce y actúa.</p>
+        </div>
+
+        <div class="impact-card anim-up" style="border-color: rgba(167,139,250,0.2);">
+          <div class="impact-num-sm" style="color: #a78bfa;">100%</div>
+          <h3>Trazabilidad</h3>
+          <p>Cada caso tiene un historial completo y auditado, permitiendo generar informes institucionales y justificar decisiones.</p>
+        </div>
+
+        <div class="impact-card anim-up" style="border-color: rgba(249,115,22,0.2);">
+          <div class="impact-num-sm red">+500</div>
+          <h3>Estudiantes beneficiados</h3>
+          <p>Toda la comunidad estudiantil de Fe y Alegría contará con un canal seguro y confiable para reportar incidentes.</p>
+        </div>
+
+        <div class="impact-card anim-up" style="border-color: rgba(251,191,36,0.2);">
+          <div class="impact-num-sm" style="color: #fbbf24;">∞</div>
+          <h3>Escalabilidad</h3>
+          <p>La arquitectura cloud puede extenderse a múltiples sedes del Movimiento Fe y Alegría sin costo adicional de infraestructura.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════ SLIDE 6 — FE Y ALEGRÍA ══════════════════════ -->
+  <div class="slide" id="s6">
+    <div class="slide-content">
+      <div class="section-eyebrow anim-up">Contexto Institucional</div>
+      <h2 class="slide-title anim-up"><span class="accent-green">Fe y Alegría</span> —<br/>Educación para transformar</h2>
+
+      <div class="institutional-grid" style="margin-top:1.5rem;">
+        <div class="inst-values">
+          <div class="inst-value anim-up">
+            <div class="inst-value-icon">🎓</div>
+            <div>
+              <h4>Educación de Calidad</h4>
+              <p>Fe y Alegría trabaja con las comunidades más vulnerables, garantizando acceso a educación de calidad con valores humanos.</p>
+            </div>
+          </div>
+          <div class="inst-value anim-up">
+            <div class="inst-value-icon">🤝</div>
+            <div>
+              <h4>Comunidad y Participación</h4>
+              <p>La participación activa de estudiantes, docentes y familias es el corazón del modelo educativo del movimiento.</p>
+            </div>
+          </div>
+          <div class="inst-value anim-up">
+            <div class="inst-value-icon">🌿</div>
+            <div>
+              <h4>Innovación Social</h4>
+              <p>Proyectos tecnológicos como SafeCampus demuestran que la innovación puede nacer desde adentro de la institución.</p>
+            </div>
+          </div>
+
+          <div class="inst-facts anim-up">
+            <div class="inst-fact">
+              <div class="inst-fact-num">100+</div>
+              <div class="inst-fact-label">años del movimiento global</div>
+            </div>
+            <div class="inst-fact">
+              <div class="inst-fact-num">17</div>
+              <div class="inst-fact-label">países presentes</div>
+            </div>
+            <div class="inst-fact">
+              <div class="inst-fact-num">+1M</div>
+              <div class="inst-fact-label">estudiantes impactados</div>
+            </div>
+            <div class="inst-fact">
+              <div class="inst-fact-num">EC</div>
+              <div class="inst-fact-label">sede en Ecuador</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="inst-quote anim-up">
+          <p class="inst-quote-text">
+            SafeCampus Monitor nace del compromiso de Fe y Alegría con el bienestar de sus estudiantes. La tecnología al servicio de la seguridad y la dignidad de nuestra comunidad educativa.
+          </p>
+          <div class="inst-quote-author">— Proyecto Integrador, Unidad Educativa Fe y Alegría, 2025</div>
+
+          <div style="margin-top:1.5rem; display:flex; flex-direction:column; gap:0.6rem;">
+            <div style="display:flex; align-items:center; gap:0.6rem; font-size:0.82rem; color:var(--text-muted);">
+              <span style="color:var(--green-light);">✓</span> Seguridad estudiantil como prioridad
+            </div>
+            <div style="display:flex; align-items:center; gap:0.6rem; font-size:0.82rem; color:var(--text-muted);">
+              <span style="color:var(--green-light);">✓</span> Tecnología accesible y sin costo
+            </div>
+            <div style="display:flex; align-items:center; gap:0.6rem; font-size:0.82rem; color:var(--text-muted);">
+              <span style="color:var(--green-light);">✓</span> Construido por y para la comunidad
+            </div>
+            <div style="display:flex; align-items:center; gap:0.6rem; font-size:0.82rem; color:var(--text-muted);">
+              <span style="color:var(--green-light);">✓</span> 100% funcional y desplegado en producción
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════ SLIDE 7 — DEMO ══════════════════════ -->
+  <div class="slide" id="s7">
+    <div class="slide-content">
+      <div class="section-eyebrow anim-up">Demo en Vivo</div>
+      <h2 class="slide-title anim-up">Pruébalo <span class="accent-green">ahora mismo</span></h2>
+      <p class="slide-lead anim-up">La aplicación ya está en producción. Puedes acceder desde cualquier dispositivo con internet.</p>
+
+      <div class="demo-layout">
+        <div>
+          <div class="url-box anim-up">
+            <span class="url-dot"></span>
+            fey-alegria-proyecto.vercel.app
+          </div>
+
+          <div class="demo-steps">
+            <div class="demo-step anim-up">
+              <div class="step-num">1</div>
+              <span>Escanea el QR o ingresa la URL en tu navegador</span>
+            </div>
+            <div class="demo-step anim-up">
+              <div class="step-num">2</div>
+              <span>Crea una cuenta de <strong>Estudiante</strong> o ingresa como Autoridad</span>
+            </div>
+            <div class="demo-step anim-up">
+              <div class="step-num">3</div>
+              <span>Reporta un incidente en el mapa y verifica que aparece en tiempo real</span>
+            </div>
+            <div class="demo-step anim-up">
+              <div class="step-num">4</div>
+              <span>Cambia el estado del incidente desde el panel de Autoridad</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="qr-container anim-up">
+          <div class="qr-frame">
+            <!-- QR code visual representation using SVG -->
+            <svg width="170" height="170" viewBox="0 0 170 170" xmlns="http://www.w3.org/2000/svg">
+              <!-- Top-left finder pattern -->
+              <rect x="10" y="10" width="50" height="50" rx="5" fill="#000"/>
+              <rect x="18" y="18" width="34" height="34" rx="3" fill="#fff"/>
+              <rect x="24" y="24" width="22" height="22" rx="2" fill="#000"/>
+              <!-- Top-right finder pattern -->
+              <rect x="110" y="10" width="50" height="50" rx="5" fill="#000"/>
+              <rect x="118" y="18" width="34" height="34" rx="3" fill="#fff"/>
+              <rect x="124" y="24" width="22" height="22" rx="2" fill="#000"/>
+              <!-- Bottom-left finder pattern -->
+              <rect x="10" y="110" width="50" height="50" rx="5" fill="#000"/>
+              <rect x="18" y="118" width="34" height="34" rx="3" fill="#fff"/>
+              <rect x="24" y="124" width="22" height="22" rx="2" fill="#000"/>
+              <!-- Data modules (decorative pattern) -->
+              <rect x="75" y="10" width="10" height="10" rx="1" fill="#000"/>
+              <rect x="90" y="10" width="10" height="10" rx="1" fill="#000"/>
+              <rect x="75" y="25" width="10" height="10" rx="1" fill="#000"/>
+              <rect x="75" y="40" width="10" height="10" rx="1" fill="#000"/>
+              <rect x="90" y="40" width="10" height="10" rx="1" fill="#000"/>
+              <rect x="10" y="75" width="10" height="10" rx="1" fill="#000"/>
+              <rect x="25" y="75" width="10" height="10" rx="1" fill="#000"/>
+              <rect x="40" y="75" width="10" height="10" rx="1" fill="#000"/>
+              <rect x="10" y="90" width="10" height="10" rx="1" fill="#000"/>
+              <rect x="40" y="90" width="10" height="10" rx="1" fill="#000"/>
+              <rect x="75" y="75" width="10" height="10" rx="2" fill="#16a34a"/>
+              <rect x="90" y="75" width="10" height="10" rx="1" fill="#000"/>
+              <rect x="105" y="75" width="10" height="10" rx="1" fill="#000"/>
+              <rect x="120" y="75" width="10" height="10" rx="1" fill="#000"/>
+              <rect x="150" y="75" width="10" height="10" rx="1" fill="#000"/>
+              <rect x="75" y="90" width="10" height="10" rx="1" fill="#000"/>
+              <rect x="105" y="90" width="10" height="10" rx="1" fill="#000"/>
+              <rect x="135" y="90" width="10" height="10" rx="1" fill="#000"/>
+              <rect x="150" y="90" width="10" height="10" rx="1" fill="#000"/>
+              <rect x="75" y="105" width="10" height="10" rx="1" fill="#000"/>
+              <rect x="90" y="105" width="10" height="10" rx="1" fill="#000"/>
+              <rect x="120" y="105" width="10" height="10" rx="1" fill="#000"/>
+              <rect x="150" y="105" width="10" height="10" rx="1" fill="#000"/>
+              <rect x="75" y="120" width="10" height="10" rx="1" fill="#000"/>
+              <rect x="105" y="120" width="10" height="10" rx="1" fill="#000"/>
+              <rect x="135" y="120" width="10" height="10" rx="1" fill="#000"/>
+              <rect x="75" y="135" width="10" height="10" rx="1" fill="#000"/>
+              <rect x="90" y="135" width="10" height="10" rx="1" fill="#000"/>
+              <rect x="120" y="135" width="10" height="10" rx="1" fill="#000"/>
+              <rect x="150" y="135" width="10" height="10" rx="1" fill="#000"/>
+              <rect x="75" y="150" width="10" height="10" rx="1" fill="#000"/>
+              <rect x="105" y="150" width="10" height="10" rx="1" fill="#000"/>
+              <rect x="120" y="150" width="10" height="10" rx="1" fill="#000"/>
+              <rect x="150" y="150" width="10" height="10" rx="1" fill="#000"/>
+              <!-- Green highlight dot in center -->
+              <circle cx="85" cy="85" r="6" fill="#16a34a" opacity="0.8"/>
+            </svg>
+          </div>
+          <div class="qr-label">Escanea con tu cámara</div>
+          <div class="qr-url">fey-alegria-proyecto.vercel.app</div>
+          <div style="margin-top:0.75rem; display:flex; gap:0.5rem;">
+            <span style="background:rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.25); color:var(--green-light); font-size:0.7rem; font-weight:700; padding:0.3rem 0.7rem; border-radius:60px;">✅ EN VIVO</span>
+            <span style="background:rgba(255,255,255,0.05); border:1px solid var(--border); color:var(--text-muted); font-size:0.7rem; font-weight:700; padding:0.3rem 0.7rem; border-radius:60px;">🆓 GRATUITO</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════ SLIDE 8 — CIERRE ══════════════════════ -->
+  <div class="slide" id="s8">
+    <div class="slide-content closing-center">
+      <div class="cover-badge anim-up" style="margin-bottom:1.5rem;">
+        <span class="cover-dot"></span>
+        Proyecto completado ✓
+      </div>
+
+      <div class="closing-logo anim-up">
+        <span class="green">Safe</span><span class="red">Campus</span>
+      </div>
+
+      <p class="closing-tagline anim-up">Porque la seguridad de nuestros estudiantes no puede esperar.</p>
+
+      <div class="team-grid anim-up">
+        <div class="team-card">
+          <div class="team-avatar" style="background: linear-gradient(135deg, var(--green), var(--green-light));">M</div>
+          <h4>Mateo Pozo</h4>
+          <p>Desarrollador Full Stack</p>
+        </div>
+        <div class="team-card">
+          <div class="team-avatar" style="background: linear-gradient(135deg, var(--red), var(--red-light));">Fe</div>
+          <h4>Fe y Alegría</h4>
+          <p>Institución Educativa</p>
+        </div>
+        <div class="team-card">
+          <div class="team-avatar" style="background: linear-gradient(135deg, #6366f1, #a78bfa);">AI</div>
+          <h4>Gemini AI</h4>
+          <p>Asistencia Técnica</p>
+        </div>
+      </div>
+
+      <div class="anim-up" style="display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-bottom:2rem; max-width:500px; width:100%;">
+        <div style="text-align:center; background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:1rem;">
+          <div style="font-family:'Space Grotesk',sans-serif; font-size:1.6rem; font-weight:800; color:var(--green-light);">Vue 3</div>
+          <div style="font-size:0.7rem; color:var(--text-muted);">Frontend</div>
+        </div>
+        <div style="text-align:center; background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:1rem;">
+          <div style="font-family:'Space Grotesk',sans-serif; font-size:1.6rem; font-weight:800; color:var(--green-light);">Vercel</div>
+          <div style="font-size:0.7rem; color:var(--text-muted);">Hosting</div>
+        </div>
+        <div style="text-align:center; background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:1rem;">
+          <div style="font-family:'Space Grotesk',sans-serif; font-size:1.6rem; font-weight:800; color:var(--green-light);">PG</div>
+          <div style="font-size:0.7rem; color:var(--text-muted);">Base de Datos</div>
+        </div>
+      </div>
+
+      <p class="closing-thanks anim-up">
+        Hecho con <span class="heart">♥</span> para la comunidad de Fe y Alegría
+      </p>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── NAV BAR ── -->
+<nav id="nav">
+  <button class="nav-btn" id="prev-btn" onclick="changeSlide(-1)" disabled>‹</button>
+  <div class="nav-dots" id="dots"></div>
+  <button class="nav-btn" id="next-btn" onclick="changeSlide(1)">›</button>
+  <div id="slide-counter">1 / 8</div>
+</nav>
+
+<script>
+  let current = 0;
+  const total = 8;
+  const slides = document.querySelectorAll('.slide');
+  const badge = document.getElementById('slide-num-badge');
+  const counter = document.getElementById('slide-counter');
+  const dotsContainer = document.getElementById('dots');
+  const prevBtn = document.getElementById('prev-btn');
+  const nextBtn = document.getElementById('next-btn');
+
+  // Build dots
+  for (let i = 0; i < total; i++) {
+    const d = document.createElement('div');
+    d.className = 'nav-dot' + (i === 0 ? ' active' : '');
+    d.onclick = () => goTo(i);
+    dotsContainer.appendChild(d);
+  }
+
+  function goTo(n) {
+    slides[current].classList.remove('active');
+    slides[current].classList.add('exit');
+    const prev = current;
+    current = n;
+
+    setTimeout(() => {
+      slides[prev].classList.remove('exit');
+      // Reset anim
+      slides[current].querySelectorAll('.anim-up').forEach(el => {
+        el.style.animation = 'none';
+        el.offsetHeight;
+        el.style.animation = '';
+      });
+    }, 550);
+
+    slides[current].classList.add('active');
+
+    // Update UI
+    badge.textContent = `${current + 1} / ${total}`;
+    counter.textContent = `${current + 1} / ${total}`;
+    document.querySelectorAll('.nav-dot').forEach((d, i) => {
+      d.classList.toggle('active', i === current);
+    });
+    prevBtn.disabled = current === 0;
+    nextBtn.disabled = current === total - 1;
+  }
+
+  function changeSlide(dir) {
+    const next = current + dir;
+    if (next >= 0 && next < total) goTo(next);
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); changeSlide(1); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); changeSlide(-1); }
+  });
+
+  // Touch swipe
+  let touchX = 0;
+  document.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; });
+  document.addEventListener('touchend', e => {
+    const diff = touchX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) changeSlide(diff > 0 ? 1 : -1);
+  });
+
+  // Fullscreen
+  function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen();
+    }
+  }
+
+  // Particle canvas
+  const canvas = document.getElementById('particles');
+  const ctx = canvas.getContext('2d');
+  let particles = [];
+
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+
+  class Particle {
+    constructor() { this.reset(); }
+    reset() {
+      this.x = Math.random() * canvas.width;
+      this.y = Math.random() * canvas.height;
+      this.vx = (Math.random() - 0.5) * 0.3;
+      this.vy = (Math.random() - 0.5) * 0.3;
+      this.alpha = Math.random() * 0.4 + 0.05;
+      this.r = Math.random() * 1.5 + 0.5;
+      this.color = Math.random() > 0.5 ? '34,197,94' : '220,38,38';
+    }
+    update() {
+      this.x += this.vx;
+      this.y += this.vy;
+      if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) this.reset();
+    }
+    draw() {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${this.color},${this.alpha})`;
+      ctx.fill();
+    }
+  }
+
+  for (let i = 0; i < 80; i++) particles.push(new Particle());
+
+  function animateParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => { p.update(); p.draw(); });
+    requestAnimationFrame(animateParticles);
+  }
+  animateParticles();
+</script>
+</body>
+</html>

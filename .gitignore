@@ -5,3 +5,7 @@ dist/
 .vercel
 *.local
 server/database.sqlite
+server/database.sqlite-shm
+server/database.sqlite-wal
+docs/credenciales_reales.pdf
+docs/credentials_real.md
